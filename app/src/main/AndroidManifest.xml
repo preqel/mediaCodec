@@ -10,8 +10,13 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
+        android:requestLegacyExternalStorage="true"
         android:theme="@style/Theme.TestMediaCodec"
         tools:targetApi="31">
+        
+        <activity android:name=".TakePicActivity"
+            android:screenOrientation="portrait"
+            ></activity>
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -24,5 +29,15 @@
             </intent-filter>
         </activity>
     </application>
+
+    <uses-feature android:name="android.hardware.camera"  android:required="false" />
+
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+
+
 
 </manifest>
