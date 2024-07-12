@@ -1,10 +1,11 @@
 package com.example.testmediacodec
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.media.MediaRecorder
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
@@ -13,13 +14,10 @@ import android.util.Log
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.camera.core.CameraControl
 import androidx.camera.core.CameraSelector
-import androidx.camera.core.CameraX
 import androidx.camera.core.ImageCapture
-import androidx.camera.video.FileOutputOptions
+import androidx.camera.core.ImageCaptureException
 import androidx.camera.video.MediaStoreOutputOptions
 import androidx.camera.video.Recording
 import androidx.camera.video.VideoRecordEvent
@@ -27,9 +25,6 @@ import androidx.camera.view.CameraController
 import androidx.camera.view.LifecycleCameraController
 import androidx.camera.view.PreviewView
 import androidx.camera.view.video.AudioConfig
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -38,6 +33,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.util.Consumer
 import com.example.testmediacodec.ui.theme.TestMediaCodecTheme
+
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -48,6 +44,7 @@ class MainActivity : ComponentActivity() {
         companion object {
 
             val CAMERAX_PERMISSIONS = arrayOf(
+                android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
                 android.Manifest.permission.CAMERA,//请求相机
                 android.Manifest.permission.RECORD_AUDIO)//请求录制音频
         }
@@ -58,6 +55,7 @@ class MainActivity : ComponentActivity() {
 
     private lateinit var outputDirectory:String
 
+    @SuppressLint("RestrictedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -82,8 +80,12 @@ class MainActivity : ComponentActivity() {
         val mStart = findViewById<TextView>(R.id.textView);
         val mStop = findViewById<TextView>(R.id.textView2);
         val mSwitch = findViewById<TextView>(R.id.textViewSwitch)
+
+        val mGLSurface = findViewById<TextView>(R.id.textViewGLSurfaceView)
+
         val mPic = findViewById<TextView>(R.id.textViewPic)
         val mPreview = findViewById<PreviewView>(R.id.previewView)
+        val mPreviewPicMode = findViewById<TextView>(R.id.textViewSwitchPicMode)
 
         mPreview.controller = lifecycleCameraController;
 
@@ -117,6 +119,15 @@ class MainActivity : ComponentActivity() {
             } else {
                 lifecycleCameraController.cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA
             }
+        }
+
+
+
+
+        mGLSurface.setOnClickListener {
+            Toast.makeText(this,"d",Toast.LENGTH_SHORT).show()
+            val intent = Intent(this@MainActivity, GLActivity::class.java)
+            startActivity(intent)
         }
 
         mStart.setOnClickListener {
@@ -163,8 +174,8 @@ class MainActivity : ComponentActivity() {
                         when(event){
                             is VideoRecordEvent.Finalize->{
                                 if(event.hasError()){
-                                    recording?.close();
-                                    recording = null;
+                                    recording?.close()
+                                    recording = null
                                     Toast.makeText(this@MainActivity, "视频录制失败"+event.error,Toast.LENGTH_LONG).show();
                                 }else {
                                     Toast.makeText(this@MainActivity, "视频录制成功",Toast.LENGTH_LONG).show();
@@ -179,12 +190,44 @@ class MainActivity : ComponentActivity() {
         mStop.setOnClickListener {
             if(mStop!= null){
                 recording?.stop()
-                Toast.makeText(this, "录制结束",Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "录制结束-》" + mediaOutputOptions.collectionUri.toString(),Toast.LENGTH_SHORT).show()
             }
         }
 
+
         mPic.setOnClickListener {
-            val photoFile = createPhontFile()
+            lifecycleCameraController.let {
+
+                  val lensFacing = lifecycleCameraController.cameraSelector.lensFacing
+               //if(lifecycleCameraController.cameraSelector == LENS_FACING_BACK)
+
+                  val photo = createPhontFile()
+
+                  val metadata = ImageCapture.Metadata().apply {
+                      isReversedHorizontal  = lensFacing == CameraSelector.LENS_FACING_FRONT
+                  }
+
+                val outputOptions = ImageCapture.OutputFileOptions.Builder(photo)
+                    .setMetadata(metadata)
+                    .build()
+            lifecycleCameraController.setEnabledUseCases(CameraController.IMAGE_CAPTURE )
+            lifecycleCameraController.takePicture(outputOptions, ContextCompat.getMainExecutor(applicationContext),object:ImageCapture.OnImageSavedCallback {
+                    override fun onImageSaved(output: ImageCapture.OutputFileResults) {
+                        val savedUri = output.savedUri ?: Uri.fromFile(photo)
+                        Log.d("OnImageSavedCallback", "Photo capture succeeded: $savedUri")
+                   }
+                    override fun onError(exc: ImageCaptureException) {
+                        Log.d("OnImageSavedCallback", "Photo capture failed: ${exc.message}", exc)
+                     }
+
+                })
+
+            }
+        }
+
+        mPreviewPicMode.setOnClickListener {
+
+
         }
     }
 
