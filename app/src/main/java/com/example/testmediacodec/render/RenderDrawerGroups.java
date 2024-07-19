@@ -89,6 +89,7 @@ public class RenderDrawerGroups {
         // 绘制顺序会控制着 水印绘制哪一层
         //drawRender(mWaterMarkDrawer, true, timestamp, transformMatrix);
         drawRender(mDisplayDrawer, false,  timestamp, transformMatrix);
+        //本来是放到后面的
         drawRender(mWaterMarkDrawer, true, timestamp, transformMatrix);
         drawRender(mRecordDrawer, false, timestamp, transformMatrix);
     }

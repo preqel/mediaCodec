@@ -144,6 +144,7 @@ public class RecordRenderDrawer extends BaseRenderDrawer implements Runnable{
             mEglHelper = new EGLHelper();
             mEglHelper.createGL(context);
             mVideoPath = StorageUtil.getVedioPath(true) + "glvideo.mp4";
+            Log.d("TAG23", "mVideoPath _____________>"+ mVideoPath);
             mVideoEncoder = new VideoEncoder(width, height, new File(mVideoPath));
             mEglSurface = mEglHelper.createWindowSurface(mVideoEncoder.getInputSurface());
             boolean error = mEglHelper.makeCurrent(mEglSurface);

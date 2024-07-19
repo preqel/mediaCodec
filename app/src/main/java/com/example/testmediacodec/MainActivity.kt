@@ -122,8 +122,6 @@ class MainActivity : ComponentActivity() {
         }
 
 
-
-
         mGLSurface.setOnClickListener {
             Toast.makeText(this,"d",Toast.LENGTH_SHORT).show()
             val intent = Intent(this@MainActivity, GLActivity::class.java)
