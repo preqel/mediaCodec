@@ -5,6 +5,9 @@ import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.ImageFormat
+import android.graphics.SurfaceTexture
+import android.hardware.Camera
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -33,8 +36,8 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.util.Consumer
 import com.example.testmediacodec.ui.theme.TestMediaCodecTheme
-
 import java.io.File
+import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -87,7 +90,11 @@ class MainActivity : ComponentActivity() {
         val mPreview = findViewById<PreviewView>(R.id.previewView)
         val mPreviewPicMode = findViewById<TextView>(R.id.textViewSwitchPicMode)
 
-        mPreview.controller = lifecycleCameraController;
+        val mBackRecod = findViewById<TextView>(R.id.recordBackground)
+
+        val mHasPreview = findViewById<TextView>(R.id.recrodHasPreview)
+
+        mPreview.controller = lifecycleCameraController
 
 
         val name = SimpleDateFormat("yyyy-MM-dd hh:mm:ss",
@@ -119,6 +126,11 @@ class MainActivity : ComponentActivity() {
             } else {
                 lifecycleCameraController.cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA
             }
+        }
+
+        mHasPreview.setOnClickListener {
+            val intent = Intent(this, HasPreviewActivity::class.java)
+            startActivity(intent)
         }
 
 
@@ -192,6 +204,11 @@ class MainActivity : ComponentActivity() {
             }
         }
 
+        mBackRecod.setOnClickListener {
+          val intent= Intent(this, NoPreviewActivity::class.java)
+            startActivity(intent)
+        }
+
 
         mPic.setOnClickListener {
             lifecycleCameraController.let {
@@ -228,6 +245,12 @@ class MainActivity : ComponentActivity() {
 
         }
     }
+
+
+
+
+
+
 
     private fun initFile() {
         outputDirectory  = applicationContext.getExternalFilesDir(Environment.DIRECTORY_PICTURES)?.absolutePath  + "/CameraControllerTest/"+".png"
