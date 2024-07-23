@@ -129,7 +129,7 @@ class MainActivity : ComponentActivity() {
         }
 
         mHasPreview.setOnClickListener {
-            val intent = Intent(this, HasPreviewActivity::class.java)
+            val intent = Intent(this, VideoServer::class.java)
             startActivity(intent)
         }
 

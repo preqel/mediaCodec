@@ -50,36 +50,35 @@ class NoPreviewActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         enableEdgeToEdge()
-
         setContentView(R.layout.main3)
-       val mBack =  findViewById<TextView>(R.id.tvBackRecord)
+        val mBack =  findViewById<TextView>(R.id.tvBackRecord)
         mBack.setOnClickListener {
-
-                  startBackGround()
+            startBackGround()
         }
     }
 
+    var mCamera:Camera ?= null
     private fun startBackGround() {
 
 
-        var mCameraID: Int = Camera.CameraInfo.CAMERA_FACING_FRONT
+//        var mCameraID: Int = Camera.CameraInfo.CAMERA_FACING_FRONT
         //new SurfaceTexture
         val  surfaceTexture:SurfaceTexture = SurfaceTexture(0);
         //打开摄像头
-        val  mCamera: Camera = Camera.open(mCameraID);
+           mCamera = Camera.open();
         //设置camera参数
-        val  params: Camera.Parameters = mCamera.getParameters();
-        params.setZoom(0);
-        params.setPreviewFormat(ImageFormat.NV21);
+        val  params: Camera.Parameters = mCamera!!.getParameters();
+      //  params.setZoom(0);
+      //  params.setPreviewFormat(ImageFormat.NV21);
       //  params.setPreviewSize(surfaceTexture, 1024);
      //   params.setPictureSize(600, 1024);
-        mCamera.setParameters(params)
+        mCamera?.setParameters(params)
         //设置回调用于获取摄像头数据
-        mCamera.setPreviewCallback(mPreviewCallback );
+        mCamera?.setPreviewCallback(mPreviewCallback );
         try {
             //这一步是最关键的，使用surfaceTexture来承载相机的预览，而不需要设置一个可见的view
-            mCamera.setPreviewTexture(surfaceTexture);
-            mCamera.startPreview();
+            mCamera?.setPreviewTexture(surfaceTexture);
+            mCamera?.startPreview();
         } catch ( e: IOException) {
             e.printStackTrace();
         }

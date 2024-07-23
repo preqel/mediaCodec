@@ -16,4 +16,12 @@
         android:layout_height="wrap_content"></Button>
 
 
+    <Button
+        android:text="停止"
+        android:layout_gravity="right|top"
+        android:id="@+id/btnstop"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"></Button>
+
+
 </FrameLayout>
