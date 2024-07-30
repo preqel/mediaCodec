@@ -65,7 +65,7 @@
 
 
         <TextView
-            android:text="切换到GLSurfaceView"
+            android:text="跳转到GLActivity"
             android:layout_margin="2dp"
             android:layout_alignParentRight="true"
             android:id="@+id/textViewGLSurfaceView"

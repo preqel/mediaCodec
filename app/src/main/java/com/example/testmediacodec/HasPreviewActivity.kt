@@ -10,17 +10,24 @@ import android.graphics.SurfaceTexture
 import android.hardware.Camera
 import android.os.Bundle
 import android.util.Log
+import android.view.Surface
 import android.view.SurfaceHolder
 import android.view.SurfaceView
+import android.view.TextureView
 import android.widget.Button
 import androidx.activity.ComponentActivity
 import java.io.IOException
 
 //https://blog.csdn.net/userhu2012/article/details/134413862
+//https://blog.51cto.com/u_16213355/8289594
 class HasPreviewActivity : ComponentActivity(), SurfaceHolder.Callback{
 
 
    lateinit var surfaceView:SurfaceView
+   lateinit var surfaceViewLose:TextureView
+
+
+    lateinit var   surfaceTexture:SurfaceTexture
 
 //    @SuppressLint("RestrictedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,8 +36,38 @@ class HasPreviewActivity : ComponentActivity(), SurfaceHolder.Callback{
 //        enableEdgeToEdge()
         setContentView(R.layout.main4)
         surfaceView = findViewById(R.id.surfaceView) as SurfaceView
+    surfaceViewLose = findViewById(R.id.surfaceViewLose)
+    surfaceViewLose.surfaceTextureListener= object: TextureView.SurfaceTextureListener {
+        override fun onSurfaceTextureAvailable(surface: SurfaceTexture, width: Int, height: Int) {
+        //    surfaceTexture   = surfaceViewLose.surfaceTexture!!
+          //    surfaceTexture = surface
+        }
+
+        override fun onSurfaceTextureSizeChanged(surface: SurfaceTexture, width: Int, height: Int) {
+        }
+
+        override fun onSurfaceTextureDestroyed(surface: SurfaceTexture): Boolean {
+            return false;
+        }
+
+        override fun onSurfaceTextureUpdated(surface: SurfaceTexture) {
+        }
+
+    }
+
+    /**
+     * 这里很关键，如果是要展示，就用texttureview 的surface
+     */
+  //  val  surfaceTexture:SurfaceTexture = SurfaceTexture(0);
+
+
+
+
+
+
+
         surfaceView.holder.addCallback(this)
-       surfaceView.holder?.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS)
+        surfaceView.holder?.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS)
         val mOk = findViewById<Button>(R.id.btnOK)
         mOk.setOnClickListener {
       //      startBackGround()
@@ -48,6 +85,7 @@ class HasPreviewActivity : ComponentActivity(), SurfaceHolder.Callback{
     }
     var mCamera:Camera?= null
 
+
     fun start_camera(){
 
         try {
@@ -62,13 +100,16 @@ class HasPreviewActivity : ComponentActivity(), SurfaceHolder.Callback{
         param?.setPreviewSize(176, 144)
         mCamera?.setParameters(param)
         try {
-            mCamera?.setPreviewDisplay(surfaceView.holder)
+            mCamera?.setPreviewTexture(surfaceTexture)
+          //  mCamera?.setPreviewDisplay(surfaceView.holder)
             mCamera?.setPreviewCallback(object: Camera.PreviewCallback {
                 override fun onPreviewFrame(data: ByteArray?, camera: Camera?) {
                     Log.d("TAG23","接受到数据了")
                 }
-
             })
+            surfaceTexture.setOnFrameAvailableListener {
+                surfaceTexture->Log.e("TAG23","OnFrame")
+            }
             mCamera?.startPreview()
             //camera.takePicture(shutter, raw, jpeg)
         } catch (e: Exception) {
@@ -79,10 +120,9 @@ class HasPreviewActivity : ComponentActivity(), SurfaceHolder.Callback{
 
     private fun startBackGround() {
 
-
         var mCameraID: Int = Camera.CameraInfo.CAMERA_FACING_BACK
         //new SurfaceTexture
-       // val  surfaceTexture:SurfaceTexture = SurfaceTexture(0);
+        val  surfaceTexture:SurfaceTexture = SurfaceTexture(0);
         //打开摄像头
         var mCamera:Camera?= null
         try {
@@ -106,8 +146,8 @@ class HasPreviewActivity : ComponentActivity(), SurfaceHolder.Callback{
         mCamera.setPreviewCallback(mPreviewCallback )
         try {
             //这一步是最关键的，使用surfaceTexture 来承载相机的预览，而不需要设置一个可见的view
-            //mCamera.setPreviewTexture(surfaceTexture);
-            mCamera.setPreviewDisplay(surfaceView.holder);
+            mCamera.setPreviewTexture(surfaceTexture);
+          //  mCamera.setPreviewDisplay(surfaceView.holder);
             mCamera.startPreview()
         } catch ( e: IOException) {
             Log.e("TAG23",e.message.toString())
