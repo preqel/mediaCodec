@@ -8,7 +8,10 @@ import android.content.pm.PackageManager
 import android.graphics.ImageFormat
 import android.graphics.SurfaceTexture
 import android.hardware.Camera
+import android.media.MediaPlayer
 import android.os.Bundle
+import android.os.Handler
+import android.provider.MediaStore.Audio.Media
 import android.util.Log
 import android.view.Surface
 import android.view.SurfaceHolder
@@ -25,9 +28,7 @@ class HasPreviewActivity : ComponentActivity(), SurfaceHolder.Callback{
 
    lateinit var surfaceView:SurfaceView
    lateinit var surfaceViewLose:TextureView
-
-
-    lateinit var   surfaceTexture:SurfaceTexture
+   lateinit var surfaceTexture: SurfaceTexture
 
 //    @SuppressLint("RestrictedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,11 +37,31 @@ class HasPreviewActivity : ComponentActivity(), SurfaceHolder.Callback{
 //        enableEdgeToEdge()
         setContentView(R.layout.main4)
         surfaceView = findViewById(R.id.surfaceView) as SurfaceView
-    surfaceViewLose = findViewById(R.id.surfaceViewLose)
-    surfaceViewLose.surfaceTextureListener= object: TextureView.SurfaceTextureListener {
+        val surface:Surface =  surfaceView.holder.surface
+
+        surfaceView.holder.addCallback(this)
+        surfaceView.holder?.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS)
+
+
+        surfaceViewLose = findViewById(R.id.surfaceViewLose)
+        surfaceViewLose.surfaceTextureListener = object: TextureView.SurfaceTextureListener {
         override fun onSurfaceTextureAvailable(surface: SurfaceTexture, width: Int, height: Int) {
-        //    surfaceTexture   = surfaceViewLose.surfaceTexture!!
-          //    surfaceTexture = surface
+          //    surfaceTexture   = surfaceViewLose.surfaceTexture!!
+          //   surfaceTexture = surface
+
+            //https://blog.51cto.com/u_16213352/7046194
+            try{
+                val mediaPlayer = MediaPlayer.create(this@HasPreviewActivity, R.raw.video)
+                mediaPlayer.isLooping = true
+                mediaPlayer.prepare()
+                mediaPlayer.setDisplay(surfaceView.holder)
+                mediaPlayer.start()
+
+            } catch (e:Exception){
+                Log.e("TAG23", e.message.toString())
+                e.printStackTrace()
+            }
+
         }
 
         override fun onSurfaceTextureSizeChanged(surface: SurfaceTexture, width: Int, height: Int) {
@@ -58,7 +79,7 @@ class HasPreviewActivity : ComponentActivity(), SurfaceHolder.Callback{
     /**
      * 这里很关键，如果是要展示，就用texttureview 的surface
      */
-  //  val  surfaceTexture:SurfaceTexture = SurfaceTexture(0);
+     surfaceTexture = SurfaceTexture(0);
 
 
 
@@ -66,8 +87,8 @@ class HasPreviewActivity : ComponentActivity(), SurfaceHolder.Callback{
 
 
 
-        surfaceView.holder.addCallback(this)
-        surfaceView.holder?.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS)
+//        surfaceView.holder.addCallback(this)
+//        surfaceView.holder?.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS)
         val mOk = findViewById<Button>(R.id.btnOK)
         mOk.setOnClickListener {
       //      startBackGround()
@@ -75,7 +96,7 @@ class HasPreviewActivity : ComponentActivity(), SurfaceHolder.Callback{
         }
     val mstop = findViewById<Button>(R.id.btnstop)
     mstop.setOnClickListener {
-              stop_camera()
+        stop_camera()
     }
     }
 
@@ -101,7 +122,7 @@ class HasPreviewActivity : ComponentActivity(), SurfaceHolder.Callback{
         mCamera?.setParameters(param)
         try {
             mCamera?.setPreviewTexture(surfaceTexture)
-          //  mCamera?.setPreviewDisplay(surfaceView.holder)
+//            mCamera?.setPreviewDisplay(surfaceView.holder)
             mCamera?.setPreviewCallback(object: Camera.PreviewCallback {
                 override fun onPreviewFrame(data: ByteArray?, camera: Camera?) {
                     Log.d("TAG23","接受到数据了")
@@ -109,6 +130,7 @@ class HasPreviewActivity : ComponentActivity(), SurfaceHolder.Callback{
             })
             surfaceTexture.setOnFrameAvailableListener {
                 surfaceTexture->Log.e("TAG23","OnFrame")
+              //  surfaceTexture.updateTexImage()
             }
             mCamera?.startPreview()
             //camera.takePicture(shutter, raw, jpeg)

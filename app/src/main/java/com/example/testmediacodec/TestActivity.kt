@@ -18,7 +18,7 @@ import java.security.MessageDigest
 class TestActivity : ComponentActivity() {
 
     var flag = 1
-    var total = 8
+    var total = 3
 
     lateinit var imageView:ImageView
 
@@ -45,14 +45,17 @@ class TestActivity : ComponentActivity() {
 
     private fun initDate() {
         mImages.clear()
-        mImages.add(R.drawable.t_1)
-        mImages.add(R.drawable.t_2)
-        mImages.add(R.drawable.t_3)
-        mImages.add(R.drawable.t_4)
-        mImages.add(R.drawable.t_5)
-        mImages.add(R.drawable.t_6)
-        mImages.add(R.drawable.t_7)
-        mImages.add(R.drawable.t_8)
+//        mImages.add(R.drawable.t_1)
+//        mImages.add(R.drawable.t_2)
+//        mImages.add(R.drawable.t_3)
+//        mImages.add(R.drawable.t_4)
+//        mImages.add(R.drawable.t_5)
+//        mImages.add(R.drawable.t_6)
+//        mImages.add(R.drawable.t_7)
+//        mImages.add(R.drawable.t_8)
+       mImages.add(R.drawable.w_1)
+       mImages.add(R.drawable.w_2)
+       mImages.add(R.drawable.k_1)
     }
 
     fun render(){

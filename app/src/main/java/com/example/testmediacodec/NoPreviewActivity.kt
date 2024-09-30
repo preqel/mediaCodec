@@ -8,12 +8,19 @@ import android.content.pm.PackageManager
 import android.graphics.ImageFormat
 import android.graphics.SurfaceTexture
 import android.hardware.Camera
+import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
+import android.view.Surface
+import android.view.SurfaceHolder
+import android.view.SurfaceView
+import android.view.TextureView
+import android.view.View
+import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -42,8 +49,9 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 
 //https://blog.csdn.net/userhu2012/article/details/134413862
-class NoPreviewActivity : ComponentActivity() {
+class NoPreviewActivity : ComponentActivity(), SurfaceHolder.Callback {
 
+    lateinit var surfaceTexture: SurfaceTexture
 
     @SuppressLint("RestrictedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,39 +59,70 @@ class NoPreviewActivity : ComponentActivity() {
 
         enableEdgeToEdge()
         setContentView(R.layout.main3)
-        val mBack =  findViewById<TextView>(R.id.tvBackRecord)
-        mBack.setOnClickListener {
-            startBackGround()
+        val mOK =  findViewById<TextView>(R.id.btnOK)
+
+
+        val mstop = findViewById<Button>(R.id.btnstop)
+        mstop.setOnClickListener {
+            stop_camera()
         }
+
+       val  surfaceView = findViewById(R.id.surfaceView) as SurfaceView
+//
+        mOK.setOnClickListener {
+            start_camera(surfaceView.holder)
+        }
+        surfaceView.holder.addCallback(this)
+
+        surfaceView.holder?.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS)
+        /**
+         * 这里很关键，如果是要展示，就用texttureview 的 surfaceview
+         */
+        surfaceTexture = SurfaceTexture(0)
+
+        surfaceView.visibility = View.VISIBLE
+
     }
 
-    var mCamera:Camera ?= null
-    private fun startBackGround() {
+    private fun stop_camera() {
+        mCamera!!.stopPreview()
+        mCamera!!.release()
+    }
 
+    fun start_camera(holder:SurfaceHolder){
 
-//        var mCameraID: Int = Camera.CameraInfo.CAMERA_FACING_FRONT
-        //new SurfaceTexture
-        val  surfaceTexture:SurfaceTexture = SurfaceTexture(0);
-        //打开摄像头
-           mCamera = Camera.open();
-        //设置camera参数
-        val  params: Camera.Parameters = mCamera!!.getParameters();
-      //  params.setZoom(0);
-      //  params.setPreviewFormat(ImageFormat.NV21);
-      //  params.setPreviewSize(surfaceTexture, 1024);
-     //   params.setPictureSize(600, 1024);
-        mCamera?.setParameters(params)
-        //设置回调用于获取摄像头数据
-        mCamera?.setPreviewCallback(mPreviewCallback );
         try {
-            //这一步是最关键的，使用surfaceTexture来承载相机的预览，而不需要设置一个可见的view
-            mCamera?.setPreviewTexture(surfaceTexture);
-            mCamera?.startPreview();
-        } catch ( e: IOException) {
-            e.printStackTrace();
+            mCamera   = Camera.open()
+        } catch (e: RuntimeException) {
+            Log.e("TAG23", "init_camera: $e")
+            return
         }
-    }
+        val param = mCamera?.getParameters()
+        //modify parameter
+        param?.previewFrameRate = 20
+        param?.setPreviewSize(176, 144)
+        mCamera?.setParameters(param)
+        try {
+//            mCamera?.setPreviewTexture(surfaceTexture)
+           mCamera?.setPreviewDisplay(holder)
+            mCamera?.setPreviewCallback(object: Camera.PreviewCallback {
+                override fun onPreviewFrame(data: ByteArray?, camera: Camera?) {
+                    Log.d("TAG23","接受到数据了")
+                }
+            })
+            surfaceTexture.setOnFrameAvailableListener {
+                    surfaceTexture->Log.e("TAG23","OnFrame")
+                //  surfaceTexture.updateTexImage()
+            }
+            mCamera?.startPreview()
+            //camera.takePicture(shutter, raw, jpeg)
+        } catch (e: Exception) {
+            Log.e("TAG23", "init_camera: $e")
+            return
+        }
 
+    }
+    var mCamera:Camera ?= null
 
     val   mPreviewCallback :Camera.PreviewCallback = object: Camera.PreviewCallback {
         override fun onPreviewFrame(data: ByteArray?, camera: Camera?) {
@@ -91,4 +130,15 @@ class NoPreviewActivity : ComponentActivity() {
         }
 
     };
+
+    override fun surfaceCreated(holder: SurfaceHolder) {
+
+    }
+
+    override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
+
+    }
+
+    override fun surfaceDestroyed(holder: SurfaceHolder) {
+    }
 }
