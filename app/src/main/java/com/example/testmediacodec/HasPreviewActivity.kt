@@ -9,6 +9,7 @@ import android.graphics.ImageFormat
 import android.graphics.SurfaceTexture
 import android.hardware.Camera
 import android.media.MediaPlayer
+import android.opengl.GLSurfaceView
 import android.os.Bundle
 import android.os.Handler
 import android.provider.MediaStore.Audio.Media
@@ -17,8 +18,11 @@ import android.view.Surface
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.view.TextureView
+import android.view.View
 import android.widget.Button
+import android.widget.FrameLayout
 import androidx.activity.ComponentActivity
+import com.example.testmediacodec.render.TestRender
 import java.io.IOException
 
 //https://blog.csdn.net/userhu2012/article/details/134413862
@@ -29,6 +33,8 @@ class HasPreviewActivity : ComponentActivity(), SurfaceHolder.Callback{
    lateinit var surfaceView:SurfaceView
    lateinit var surfaceViewLose:TextureView
    lateinit var surfaceTexture: SurfaceTexture
+
+   lateinit var glsurfaceview: GLSurfaceView
 
 //    @SuppressLint("RestrictedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,15 +47,14 @@ class HasPreviewActivity : ComponentActivity(), SurfaceHolder.Callback{
 
         surfaceView.holder.addCallback(this)
         surfaceView.holder?.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS)
-
+       // surfaceView.visibility = View.VISIBLE
 
         surfaceViewLose = findViewById(R.id.surfaceViewLose)
         surfaceViewLose.surfaceTextureListener = object: TextureView.SurfaceTextureListener {
         override fun onSurfaceTextureAvailable(surface: SurfaceTexture, width: Int, height: Int) {
           //    surfaceTexture   = surfaceViewLose.surfaceTexture!!
-          //   surfaceTexture = surface
-
-            //https://blog.51cto.com/u_16213352/7046194
+          //    surfaceTexture = surface
+          //    https://blog.51cto.com/u_16213352/7046194
             try{
                 val mediaPlayer = MediaPlayer.create(this@HasPreviewActivity, R.raw.video)
                 mediaPlayer.isLooping = true
@@ -79,12 +84,13 @@ class HasPreviewActivity : ComponentActivity(), SurfaceHolder.Callback{
     /**
      * 这里很关键，如果是要展示，就用texttureview 的surface
      */
-     surfaceTexture = SurfaceTexture(0);
-
-
-
-
-
+     surfaceTexture = SurfaceTexture(1)
+   //  val glsurfaceview = GLSurfaceView(this@HasPreviewActivity)
+     glsurfaceview = findViewById<GLSurfaceView>(R.id.glsurfaceview)
+     val render = TestRender(surfaceTexture, glsurfaceview)
+     glsurfaceview.setRenderer(render)
+   //  val content = findViewById<FrameLayout>(R.id.fl_content)
+    // content.addView(glsurfaceview)
 
 
 //        surfaceView.holder.addCallback(this)
@@ -122,14 +128,14 @@ class HasPreviewActivity : ComponentActivity(), SurfaceHolder.Callback{
         mCamera?.setParameters(param)
         try {
             mCamera?.setPreviewTexture(surfaceTexture)
-//            mCamera?.setPreviewDisplay(surfaceView.holder)
+   //         mCamera?.setPreviewDisplay(surfaceView.holder)
             mCamera?.setPreviewCallback(object: Camera.PreviewCallback {
                 override fun onPreviewFrame(data: ByteArray?, camera: Camera?) {
                     Log.d("TAG23","接受到数据了")
                 }
             })
             surfaceTexture.setOnFrameAvailableListener {
-                surfaceTexture->Log.e("TAG23","OnFrame")
+                surfaceTexture->Log.d("TAG23","OnFrameAvailable")
               //  surfaceTexture.updateTexImage()
             }
             mCamera?.startPreview()
@@ -195,5 +201,15 @@ class HasPreviewActivity : ComponentActivity(), SurfaceHolder.Callback{
     }
 
     override fun surfaceDestroyed(holder: SurfaceHolder) {
+    }
+
+    override fun onResume() {
+glsurfaceview.onResume()
+        super.onResume()
+    }
+
+    override fun onPause() {
+        glsurfaceview.onPause()
+        super.onPause()
     }
 }

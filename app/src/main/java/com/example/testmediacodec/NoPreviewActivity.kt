@@ -69,9 +69,7 @@ class NoPreviewActivity : ComponentActivity(), SurfaceHolder.Callback {
 
        val  surfaceView = findViewById(R.id.surfaceView) as SurfaceView
 //
-        mOK.setOnClickListener {
-            start_camera(surfaceView.holder)
-        }
+
         surfaceView.holder.addCallback(this)
 
         surfaceView.holder?.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS)
@@ -82,6 +80,9 @@ class NoPreviewActivity : ComponentActivity(), SurfaceHolder.Callback {
 
         surfaceView.visibility = View.VISIBLE
 
+        mOK.setOnClickListener {
+            start_camera(surfaceView.holder)
+        }
     }
 
     private fun stop_camera() {
