@@ -214,6 +214,7 @@ class GLFragment : Fragment() , CameraProgressButton.Listener, CameraGLSurfaceVi
     }
 
     override fun onEndLongPress() {
+        Log.d("TAG23", "onEndLOngpress")
         mCameraView!!.stopRecord()
     }
 

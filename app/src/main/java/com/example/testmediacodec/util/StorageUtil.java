@@ -1,6 +1,7 @@
 package com.example.testmediacodec.util;
 
 import android.os.Environment;
+import android.util.Log;
 
 import java.io.File;
 
@@ -29,6 +30,7 @@ public class StorageUtil {
     public static String getVedioPath(boolean checkDirExist) {
         String path = getSDPath() + "/" + getDirName() + "/video/";
         checkDirExist(path);
+        Log.d("TAG23", "path____.》"+ path);
         return path;
     }
 
