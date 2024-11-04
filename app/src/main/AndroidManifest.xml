@@ -22,36 +22,39 @@
             android:exported="true"
             android:screenOrientation="portrait">
 
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+
         </activity>
 
         <activity android:name=".GLActivity"
             android:exported="true"
             android:screenOrientation="portrait">
 
+<!--            <intent-filter>-->
+<!--                            <action android:name="android.intent.action.MAIN" />-->
+<!--                            <category android:name="android.intent.category.LAUNCHER" />-->
+<!--                     </intent-filter>-->
 
+                    </activity>
+                    <activity
 
-        </activity>
-        <activity
+                        android:name=".MainActivity"
+                        android:exported="true"
+                        android:label="@string/app_name"
+                        android:theme="@style/Theme.TestMediaCodec">
 
-            android:name=".MainActivity"
-            android:exported="true"
-            android:label="@string/app_name"
-            android:theme="@style/Theme.TestMediaCodec">
+                    </activity>
 
-        </activity>
+                    <activity android:name=".NoPreviewActivity" android:exported="true">
 
-        <activity android:name=".NoPreviewActivity" android:exported="true">
-
-        </activity>
-        <activity
-            android:name=".HasPreviewActivity"
-            android:exported="true"
-          >
-
+                    </activity>
+                    <activity
+                        android:name=".HasPreviewActivity"
+                        android:exported="true"
+                      >
+                        <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
         <activity android:name=".VideoServer"
             android:exported="true">

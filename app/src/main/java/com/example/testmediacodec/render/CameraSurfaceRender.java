@@ -6,6 +6,7 @@ import android.opengl.EGL14;
 import android.opengl.GLSurfaceView;
 import android.util.Log;
 
+import com.example.testmediacodec.HasPreviewActivity;
 import com.example.testmediacodec.util.GlesUtil;
 import com.example.testmediacodec.util.LogUtil;
 
@@ -44,7 +45,10 @@ public class CameraSurfaceRender implements GLSurfaceView.Renderer {
     }
 
     public void initCameraTexture() {
+      //  mCameraTexture = HasPreviewActivity.surfaceTexture;
         mCameraTexture = new SurfaceTexture(mCameraTextureId);
+       //  mCameraTexture =
+
         mCameraTexture.setOnFrameAvailableListener(new SurfaceTexture.OnFrameAvailableListener() {
                 @Override
                 public void onFrameAvailable(SurfaceTexture surfaceTexture) {

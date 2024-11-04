@@ -38,6 +38,7 @@ public class VideoEncoder {
         format.setInteger(MediaFormat.KEY_COLOR_FORMAT,
                 MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface);
         format.setInteger(MediaFormat.KEY_BIT_RATE, bitRate);
+        Log.d("TAG23", "bitrate"+ bitRate);
         format.setInteger(MediaFormat.KEY_FRAME_RATE, FRAME_RATE);
         format.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, IFRAME_INTERVAL);
        // Log.d(TAG, "format: " + format);
@@ -80,7 +81,7 @@ public class VideoEncoder {
         while (true) {
             int encoderStatus = mEncoder.dequeueOutputBuffer(mBufferInfo, TIMEOUT_USEC);
             if (encoderStatus == MediaCodec.INFO_TRY_AGAIN_LATER) {
-             //d   Log.d(TAG, "MediaCodec.INFO_TRY_AGAIN_LATER");
+                // Log.d(TAG, "MediaCodec.INFO_TRY_AGAIN_LATER");
                 // no output available yet
                 if (!endOfStream) {
                     break;

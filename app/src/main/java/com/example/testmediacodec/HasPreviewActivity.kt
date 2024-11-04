@@ -23,24 +23,28 @@ import android.widget.Button
 import android.widget.FrameLayout
 import androidx.activity.ComponentActivity
 import com.example.testmediacodec.render.TestRender
+import com.example.testmediacodec.widget.CameraGLSurfaceView
 import java.io.IOException
 
 //https://blog.csdn.net/userhu2012/article/details/134413862
 //https://blog.51cto.com/u_16213355/8289594
 class HasPreviewActivity : ComponentActivity(), SurfaceHolder.Callback{
 
-
    lateinit var surfaceView:SurfaceView
    lateinit var surfaceViewLose:TextureView
-   lateinit var surfaceTexture: SurfaceTexture
 
    lateinit var glsurfaceview: GLSurfaceView
+   lateinit var complexView : CameraGLSurfaceView
+
+   companion object {
+       lateinit var surfaceTexture: SurfaceTexture
+   }
 
 //    @SuppressLint("RestrictedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-//        enableEdgeToEdge()
+//      enableEdgeToEdge()
         setContentView(R.layout.main4)
         surfaceView = findViewById(R.id.surfaceView) as SurfaceView
         val surface:Surface =  surfaceView.holder.surface
@@ -78,15 +82,15 @@ class HasPreviewActivity : ComponentActivity(), SurfaceHolder.Callback{
 
         override fun onSurfaceTextureUpdated(surface: SurfaceTexture) {
         }
-
     }
 
     /**
      * 这里很关键，如果是要展示，就用texttureview 的surface
      */
      surfaceTexture = SurfaceTexture(1)
-   //  val glsurfaceview = GLSurfaceView(this@HasPreviewActivity)
+     // val glsurfaceview = GLSurfaceView(this@HasPreviewActivity)
      glsurfaceview = findViewById<GLSurfaceView>(R.id.glsurfaceview)
+
      val render = TestRender(surfaceTexture, glsurfaceview)
      glsurfaceview.setRenderer(render)
    //  val content = findViewById<FrameLayout>(R.id.fl_content)
@@ -97,13 +101,46 @@ class HasPreviewActivity : ComponentActivity(), SurfaceHolder.Callback{
 //        surfaceView.holder?.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS)
         val mOk = findViewById<Button>(R.id.btnOK)
         mOk.setOnClickListener {
-      //      startBackGround()
-            start_camera()
+      //     startBackGround()
+             start_camera()
         }
     val mstop = findViewById<Button>(R.id.btnstop)
+
+    complexView = findViewById<CameraGLSurfaceView>(R.id.cl_content)
+    val surface2:Surface = Surface(surfaceTexture)
+
+
+
+    complexView.setCallback(object: CameraGLSurfaceView.CameraGLSurfaceViewCallback{
+        override fun onSurfaceViewCreate(texture: SurfaceTexture?) {
+            Log.d("TAG23", "onSurfaceviewcreate")
+        }
+
+        override fun onSurfaceViewChange(width: Int, height: Int) {
+            Log.d("TAG23", "onSurfaceViewChange")
+        }
+
+    })
     mstop.setOnClickListener {
         stop_camera()
     }
+
+//
+//    complexview.setCallback(object: CameraGLSurfaceView.CameraGLSurfaceViewCallback{
+//        override fun onSurfaceViewCreate(texture: SurfaceTexture?) {
+//            Log.d("TAG23", "onSurfaceViewcreate")
+//
+//        }
+//
+//        override fun onSurfaceViewChange(width: Int, height: Int) {
+//
+//            Log.d("TAG23", "onSurfaceViewChange")
+//
+//        }
+//
+//    })
+
+
     }
 
     private fun stop_camera() {
@@ -128,7 +165,7 @@ class HasPreviewActivity : ComponentActivity(), SurfaceHolder.Callback{
         mCamera?.setParameters(param)
         try {
             mCamera?.setPreviewTexture(surfaceTexture)
-   //         mCamera?.setPreviewDisplay(surfaceView.holder)
+   //         mCamera?.setPreviewDispRlay(surfaceView.holder)
             mCamera?.setPreviewCallback(object: Camera.PreviewCallback {
                 override fun onPreviewFrame(data: ByteArray?, camera: Camera?) {
                     Log.d("TAG23","接受到数据了")
@@ -136,7 +173,7 @@ class HasPreviewActivity : ComponentActivity(), SurfaceHolder.Callback{
             })
             surfaceTexture.setOnFrameAvailableListener {
                 surfaceTexture->Log.d("TAG23","OnFrameAvailable")
-              //  surfaceTexture.updateTexImage()
+             //   surfaceTexture.updateTexImage()
             }
             mCamera?.startPreview()
             //camera.takePicture(shutter, raw, jpeg)
@@ -183,17 +220,15 @@ class HasPreviewActivity : ComponentActivity(), SurfaceHolder.Callback{
         }
     }
 
-
     val mPreviewCallback :Camera.PreviewCallback = object: Camera.PreviewCallback {
 
         override fun onPreviewFrame(data: ByteArray?, camera: Camera?) {
             Log.d("TAG23", "产生了数据" + data?.size)
         }
 
-    };
+    }
 
     override fun surfaceCreated(holder: SurfaceHolder) {
-
 
     }
 
@@ -204,7 +239,7 @@ class HasPreviewActivity : ComponentActivity(), SurfaceHolder.Callback{
     }
 
     override fun onResume() {
-glsurfaceview.onResume()
+        glsurfaceview.onResume()
         super.onResume()
     }
 

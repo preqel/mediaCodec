@@ -7,8 +7,8 @@
 
     <com.example.testmediacodec.widget.CameraGLSurfaceView
         android:id="@+id/camera_view"
-        android:layout_width="1dp"
-        android:layout_height="1dp" />
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
     <com.example.testmediacodec.widget.CameraProgressButton
         android:id="@+id/progress_btn"
