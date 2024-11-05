@@ -1,18 +1,10 @@
 package com.example.testmediacodec
 
-import android.Manifest
-import android.annotation.SuppressLint
-import android.content.ContentValues
-import android.content.Intent
-import android.content.pm.PackageManager
-import android.graphics.ImageFormat
 import android.graphics.SurfaceTexture
 import android.hardware.Camera
 import android.media.MediaPlayer
 import android.opengl.GLSurfaceView
 import android.os.Bundle
-import android.os.Handler
-import android.provider.MediaStore.Audio.Media
 import android.util.Log
 import android.view.Surface
 import android.view.SurfaceHolder
@@ -20,9 +12,9 @@ import android.view.SurfaceView
 import android.view.TextureView
 import android.view.View
 import android.widget.Button
-import android.widget.FrameLayout
 import androidx.activity.ComponentActivity
 import com.example.testmediacodec.render.TestRender
+import com.example.testmediacodec.util.EGLHelper
 import com.example.testmediacodec.widget.CameraGLSurfaceView
 import java.io.IOException
 
@@ -90,9 +82,17 @@ class HasPreviewActivity : ComponentActivity(), SurfaceHolder.Callback{
      surfaceTexture = SurfaceTexture(1)
      // val glsurfaceview = GLSurfaceView(this@HasPreviewActivity)
      glsurfaceview = findViewById<GLSurfaceView>(R.id.glsurfaceview)
-
+//
      val render = TestRender(surfaceTexture, glsurfaceview)
-     glsurfaceview.setRenderer(render)
+    glsurfaceview.setRenderer(render)
+
+//    glsurfaceview.setEGLContextClientVersion(3);
+//    glsurfaceview.setRenderer(  com.example.testmediacodec.glsurfaceview2.CameraSurfaceRender(glsurfaceview));
+//    glsurfaceview.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+
+
+
+
    //  val content = findViewById<FrameLayout>(R.id.fl_content)
     // content.addView(glsurfaceview)
 
@@ -110,6 +110,13 @@ class HasPreviewActivity : ComponentActivity(), SurfaceHolder.Callback{
     val surface2:Surface = Surface(surfaceTexture)
 
 
+    //正式开始编程
+
+    //1创建一个offscreenEgL
+    val mEglHelper = EGLHelper()
+
+    mEglHelper.createGL()
+
 
     complexView.setCallback(object: CameraGLSurfaceView.CameraGLSurfaceViewCallback{
         override fun onSurfaceViewCreate(texture: SurfaceTexture?) {
@@ -124,31 +131,12 @@ class HasPreviewActivity : ComponentActivity(), SurfaceHolder.Callback{
     mstop.setOnClickListener {
         stop_camera()
     }
-
-//
-//    complexview.setCallback(object: CameraGLSurfaceView.CameraGLSurfaceViewCallback{
-//        override fun onSurfaceViewCreate(texture: SurfaceTexture?) {
-//            Log.d("TAG23", "onSurfaceViewcreate")
-//
-//        }
-//
-//        override fun onSurfaceViewChange(width: Int, height: Int) {
-//
-//            Log.d("TAG23", "onSurfaceViewChange")
-//
-//        }
-//
-//    })
-
-
     }
-
     private fun stop_camera() {
         mCamera!!.stopPreview()
         mCamera!!.release()
     }
     var mCamera:Camera?= null
-
 
     fun start_camera(){
 
@@ -164,11 +152,19 @@ class HasPreviewActivity : ComponentActivity(), SurfaceHolder.Callback{
         param?.setPreviewSize(176, 144)
         mCamera?.setParameters(param)
         try {
+
+            //如果不要图形
             mCamera?.setPreviewTexture(surfaceTexture)
-   //         mCamera?.setPreviewDispRlay(surfaceView.holder)
+//            mCamera?.setPreviewDisplay()
+            //如果要显示camera
+//            surfaceView.visibility = View.VISIBLE
+//            mCamera?.setPreviewDisplay(surfaceView.holder)
             mCamera?.setPreviewCallback(object: Camera.PreviewCallback {
                 override fun onPreviewFrame(data: ByteArray?, camera: Camera?) {
-                    Log.d("TAG23","接受到数据了")
+                    Log.d("TAG23","接受到数据了" )
+                    if(data!= null && data.size> 0 ){
+                        Log.d("TAG23","数据shi" + data.size)
+                    }
                 }
             })
             surfaceTexture.setOnFrameAvailableListener {
