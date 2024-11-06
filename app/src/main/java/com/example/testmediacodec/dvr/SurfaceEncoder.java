@@ -4,11 +4,14 @@ import static android.util.Log.VERBOSE;
 import static com.example.testmediacodec.util.LogUtil.TAG;
 
 import android.media.MediaCodec;
+import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 import android.media.MediaMuxer;
 import android.os.Environment;
 import android.util.Log;
 import android.view.Surface;
+
+import com.example.testmediacodec.util.StorageUtil;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -16,6 +19,11 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 public class SurfaceEncoder {
+    private static final int FRAME_RATE = 30;
+    private static final int IFRAME_INTERVAL = 10;
+
+    private static final int height = 300;
+    private static final int width = 300;
 
     static SurfaceEncoder mSufaceEncoder;
     private FileOutputStream mOuputFile;
@@ -38,9 +46,53 @@ public class SurfaceEncoder {
     }
 
     public boolean isRecording(){
-//todo
-        return false;
+        //todo
+        return true;
     }
+
+    public SurfaceEncoder()
+              {
+                  Log.d("TAG24", "SurfaceEncoder init");
+        int bitRate = height * width * 3 * 8 * FRAME_RATE / 256;
+        mBufferInfo = new MediaCodec.BufferInfo();
+        MediaFormat format = MediaFormat.createVideoFormat(MediaFormat.MIMETYPE_VIDEO_AVC, width, height);
+        format.setInteger(MediaFormat.KEY_COLOR_FORMAT,
+                MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface);
+        format.setInteger(MediaFormat.KEY_BIT_RATE, bitRate);
+        Log.d("TAG23", "bitrate"+ bitRate);
+        format.setInteger(MediaFormat.KEY_FRAME_RATE, FRAME_RATE);
+        format.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, IFRAME_INTERVAL);
+        // Log.d(TAG, "format: " + format);
+
+        try{
+        mEncoder = MediaCodec.createEncoderByType(MediaFormat.MIMETYPE_VIDEO_AVC);
+
+       // String outputFile   = Environment.getExternalStorageState() +File.separator+ "dvr.mp4";
+            String  outputFile = StorageUtil.getVedioPath(true) + "dvrt.mp4";
+            Log.d("TAG24", "SurfaceEncoder init middle1"+ outputFile);
+        File file = new File(outputFile);
+//        if(file.exists()){
+//            file.delete();
+//        } else {
+//            file.createNewFile();
+//        }
+
+
+        mEncoder.configure(format, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
+     //   mInputSurface = mEncoder.createInputSurface();
+        mEncoder.start();
+        mMuxer = new MediaMuxer(outputFile.toString(), MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
+        Log.d("TAG24", "SurfaceEncoder init middle2"+ outputFile);
+        }catch (IOException e){
+            Log.e("TAG24", e.getMessage());
+            e.printStackTrace();
+        }
+       // mTrackIndex = -1;
+        mMuxerStarted = false;
+        Log.d("TAG24", "SurfaceEncoder init end");
+    }
+
+
 
 
     public void drainAllEncoderMuxer(boolean endOfStream) {
@@ -53,7 +105,7 @@ public class SurfaceEncoder {
         }
         //recordAndMuxingAudio();
         try {
-            if(mOuputFile==null)
+            if(mOuputFile == null)
                 mOuputFile = new FileOutputStream(Environment.getExternalStorageDirectory()+"/test.h264");
 
 

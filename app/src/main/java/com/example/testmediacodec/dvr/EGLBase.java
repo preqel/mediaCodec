@@ -15,8 +15,8 @@ import android.util.Log;
 import android.view.WindowManager;
 
 /**
- * w.k 自己写的EGL环境构建器
- *
+ * w.k
+ * EGL环境构建器（重要）
  */
 public class EGLBase {
 

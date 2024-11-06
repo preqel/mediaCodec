@@ -9,7 +9,10 @@ import android.util.Log
 import android.widget.Button
 import android.widget.ImageView
 import androidx.activity.ComponentActivity
+import com.example.testmediacodec.HasPreviewActivity
+import com.example.testmediacodec.HasPreviewActivity.Companion
 import com.example.testmediacodec.R
+import com.example.testmediacodec.render.TestRender
 
 class DVRActivity : ComponentActivity(), Model.Callback{
 
@@ -48,9 +51,10 @@ class DVRActivity : ComponentActivity(), Model.Callback{
             }
         }
 
-
         surfaceTexture = SurfaceTexture(surfacetesxtid)
 
+        val render = TestRender(surfaceTexture, glSurfaceView)
+        glSurfaceView?.setRenderer(render)
 //        val message = recordSurfaceRenderHandler.obtainMessage()
 //        recordSurfaceRenderHandler.sendMessage(message);
         initEGLSurface()
@@ -99,28 +103,29 @@ class DVRActivity : ComponentActivity(), Model.Callback{
                     if(data!= null && data.size> 0 ){
                         Log.d("TAG23","数据shi" + data.size)
                     }
+                  //  surfaceTexture?.updateTexImage()
                 }
             })
             surfaceTexture?.setOnFrameAvailableListener {
                     surfaceTexture->
-
+                Log.d("TAG23","OnFrameAvailable")
                 if(mTransformMatrix== null){
                     mTransformMatrix = FloatArray(16)
                 }
                 surfaceTexture.getTransformMatrix(mTransformMatrix)
                 val timestamp = surfaceTexture.timestamp
                 if(timestamp == 0L){
-                    return@setOnFrameAvailableListener
-                }
-                //向另外要给线程发送数据，感谢https://www.jianshu.com/p/702e7b065eb3
-                recordSurfaceRenderHandler.sendMessage(
-                    recordSurfaceRenderHandler.obtainMessage(
-                        RecordSurfaceRenderHandler.MSG_RENDER_DRAW2,
-                        (timestamp shr 32) as Int, timestamp as Int, mTransformMatrix
+                    Log.d("TAG24", "timestamp null")
+                } else {
+                    //向另外要给线程发送数据，感谢https://www.jianshu.com/p/702e7b065eb3
+                    recordSurfaceRenderHandler.sendMessage(
+                        recordSurfaceRenderHandler.obtainMessage(
+                            RecordSurfaceRenderHandler.MSG_RENDER_DRAW2,
+                            (timestamp shr 32) .toInt(), timestamp.toInt(), mTransformMatrix
+                        )
                     )
-                )
-
-                Log.d("TAG23","OnFrameAvailable")
+                }
+                //貌似不是这样写的
                 //   surfaceTexture.updateTexImage()
             }
             mCamera?.startPreview()

@@ -12,8 +12,7 @@ import android.view.Surface;
 import android.view.SurfaceHolder;
 
 /***
- ** 把这些都完成了就行了
- **
+ ** 编码录制视频的线程（重要）
  */
 public class RecordSurfaceRenderHandler extends Handler {
 
@@ -189,6 +188,10 @@ public class RecordSurfaceRenderHandler extends Handler {
                 return;
             Log.d(TAG, "handleDrain: #3");
             mVideoEncoder.drainAllEncoderMuxer(false);
+            if(mDrawer== null)
+            {
+                return;
+            }
             mDrawer.draw(tex_id, transform);
            // mTargetSurface.setPresentationTime(timestampNanos);
             mEgl.setPresentationTime(timestampNanos);
