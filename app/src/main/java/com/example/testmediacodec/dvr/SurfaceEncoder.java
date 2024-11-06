@@ -5,23 +5,41 @@ import static com.example.testmediacodec.util.LogUtil.TAG;
 
 import android.media.MediaCodec;
 import android.media.MediaFormat;
+import android.media.MediaMuxer;
 import android.os.Environment;
 import android.util.Log;
+import android.view.Surface;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
 public class SurfaceEncoder {
 
-    static SurfaceEncoder mEncoder;
+    static SurfaceEncoder mSufaceEncoder;
+    private FileOutputStream mOuputFile;
+    private MediaCodec mEncoder;
+    private long mVideoStartStampUs;
+
+    boolean VERBOSE = true;
+
+    private MediaMuxer mMuxer;
+    private int mVideoTrackIndex;
+    private MediaCodec.BufferInfo mBufferInfo;
+    private boolean mMuxerStarted;
+    private Object sMuxSync = new Object();
 
     public static SurfaceEncoder getInstance(){
-        if(mEncoder== null){
-            mEncoder = new SurfaceEncoder();
-        }else {
-            return mEncoder;
+        if(mSufaceEncoder== null){
+            mSufaceEncoder = new SurfaceEncoder();
         }
+        return mSufaceEncoder;
+    }
+
+    public boolean isRecording(){
+//todo
+        return false;
     }
 
 
@@ -33,7 +51,7 @@ public class SurfaceEncoder {
             if (VERBOSE) Log.d(TAG, "sending EOS to mEncoder");
             mEncoder.signalEndOfInputStream();
         }
-        recordAndMuxingAudio();
+        //recordAndMuxingAudio();
         try {
             if(mOuputFile==null)
                 mOuputFile = new FileOutputStream(Environment.getExternalStorageDirectory()+"/test.h264");
@@ -64,8 +82,8 @@ public class SurfaceEncoder {
                     Log.d(TAG, "mEncoder output format changed: " + newFormat);
                     if(mMuxer!=null){
                         mVideoTrackIndex = mMuxer.addTrack(newFormat);
-                        tryStartMuxer();
-                        //mMuxer.start();
+                        //tryStartMuxer();  这里本来是没注掉的
+                        mMuxer.start();
                     }
                     if(mOuputFile!=null){
                         ByteBuffer sps = newFormat.getByteBuffer("csd-0");

@@ -1,29 +1,37 @@
 package com.example.testmediacodec.dvr;
 
+import static com.example.testmediacodec.util.LogUtil.TAG;
+
 import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.opengl.EGL14;
 import android.opengl.EGLConfig;
 import android.opengl.EGLContext;
 import android.opengl.EGLDisplay;
+import android.opengl.EGLExt;
 import android.opengl.EGLSurface;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.WindowManager;
 
-import com.example.testmediacodec.util.EGLHelper;
+/**
+ * w.k 自己写的EGL环境构建器
+ *
+ */
+public class EGLBase {
 
-public class BaseEGLSurface {
+
     protected EGLDisplay mEGLDisplay;
     protected EGLConfig mEGLConfig;
     protected EGLContext mEGLContext;
-    protected EGLSurface mEGLSurface;
+    public EGLSurface mEGLSurface;
     protected Context mContext;
-    protected Renderer mRenderer;
-    protected EglStatus mEglStatus = EglStatus.INVALID;
+    protected BaseEGLSurface.Renderer mRenderer;
+    protected BaseEGLSurface.EglStatus mEglStatus = BaseEGLSurface.EglStatus.INVALID;
     protected int mWidth;
     protected int mHeight;
 
-    public BaseEGLSurface(Context context) {
+    public EGLBase(Context context) {
         mContext = context;
         WindowManager mWindowManager = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
         DisplayMetrics displayMetrics = new DisplayMetrics();
@@ -32,14 +40,18 @@ public class BaseEGLSurface {
         mHeight = displayMetrics.heightPixels;
     }
 
-    public BaseEGLSurface(Context context, int width, int height) {
-        mContext = context;
-        mWidth = width;
-        mHeight = height;
+    public EGLBase(EGLContext context, int width, int height) {
+        this.mEGLContext = context;
+        this.mWidth = width;
+        this.mHeight = height;
+    }
+
+    public EGLBase(EGLContext context,boolean flag , boolean isRecordable ){
+        this.mEGLContext =context;
     }
 
     // 设置渲染器
-    public void setRenderer(Renderer renderer) {
+    public void setRenderer(BaseEGLSurface.Renderer renderer) {
         mRenderer = renderer;
     }
 
@@ -49,7 +61,7 @@ public class BaseEGLSurface {
         mHeight = height;
         EGL14.eglDestroySurface(mEGLDisplay, mEGLSurface);
         createSurface();
-        mEglStatus = EglStatus.CHANGED;
+        mEglStatus = BaseEGLSurface.EglStatus.CHANGED;
     }
 
     // 请求渲染
@@ -57,17 +69,17 @@ public class BaseEGLSurface {
         if (!mEglStatus.isValid()) {
             return;
         }
-        if (mEglStatus == EglStatus.INITIALIZED) {
+        if (mEglStatus == BaseEGLSurface.EglStatus.INITIALIZED) {
             mRenderer.onSurfaceCreated();
-            mEglStatus = EglStatus.CREATED;
+            mEglStatus = BaseEGLSurface.EglStatus.CREATED;
         }
-        if (mEglStatus == EglStatus.CREATED) {
+        if (mEglStatus == BaseEGLSurface.EglStatus.CREATED) {
             mRenderer.onSurfaceChanged(mWidth, mHeight);
-            mEglStatus = EglStatus.CHANGED;
+            mEglStatus = BaseEGLSurface.EglStatus.CHANGED;
         }
-        if (mEglStatus == EglStatus.CHANGED || mEglStatus == EglStatus.DRAW) {
+        if (mEglStatus == BaseEGLSurface.EglStatus.CHANGED || mEglStatus == BaseEGLSurface.EglStatus.DRAW) {
             mRenderer.onDrawFrame();
-            mEglStatus = EglStatus.DRAW;
+            mEglStatus = BaseEGLSurface.EglStatus.DRAW;
         }
     }
 
@@ -78,20 +90,6 @@ public class BaseEGLSurface {
         createContext();
         createSurface();
         makeCurrent();
-
-
-        SurfaceTexture surfaceTexture = new SurfaceTexture(1);
-
-        //opengl初始化，
-        // 纹理初始化，
-        // surfacetexture初始化4
-
-        //openGl 初始化
-
-        //对应surface
-
-        //不会啊！！！！！！！
-//        surfaceTexture.attachToGLContext();
     }
 
     // 销毁EGL环境
@@ -141,11 +139,23 @@ public class BaseEGLSurface {
         }
     }
 
+    public EGLSurface createFromSurface(Object surface) {
+        EGLSurface b = null;
+        if(surface instanceof SurfaceTexture){
+
+        } else {
+             SurfaceTexture a = (SurfaceTexture)surface;
+            //todo 这里初始化完成 @w.k
+
+        }
+        return b;
+    }
+
     // 5.绑定EGLSurface和EGLContext到显示设备（EGLDisplay）
-    private void makeCurrent() {
+    public void makeCurrent() {
         if (mEGLSurface != null && mEGLSurface != EGL14.EGL_NO_SURFACE) {
             EGL14.eglMakeCurrent(mEGLDisplay, mEGLSurface, mEGLSurface, mEGLContext);
-            mEglStatus = EglStatus.INITIALIZED;
+            mEglStatus = BaseEGLSurface.EglStatus.INITIALIZED;
         }
     }
 
@@ -163,6 +173,18 @@ public class BaseEGLSurface {
     // EGLContext参数
     private int[] mEGLContextAttrs = {EGL14.EGL_CONTEXT_CLIENT_VERSION, 2, EGL14.EGL_NONE};
 
+    //释放
+    public void release() {
+
+
+    }
+
+    //释放
+    public void releaseTartetSurface(){
+
+
+    }
+
     // EGL状态
     enum EglStatus {
         INVALID, INITIALIZED, CREATED, CHANGED, DRAW;
@@ -171,10 +193,28 @@ public class BaseEGLSurface {
         }
     }
 
+    public boolean setPresentationTime( long timeStamp) {
+        if (!EGLExt.eglPresentationTimeANDROID(mEGLDisplay, mEGLSurface, timeStamp)) {
+            Log.d(TAG, "setPresentationTime" + EGL14.eglGetError());
+            return false;
+        }
+        return true;
+    }
+
+    public boolean swapBuffer() {
+        if (!EGL14.eglSwapBuffers(mEGLDisplay, mEGLSurface)) {
+            Log.d(TAG, "swapBuffers" + EGL14.eglGetError());
+            return false;
+        }
+        return true;
+    }
+
     // 渲染器接口
     interface Renderer {
         void onSurfaceCreated();
         void onSurfaceChanged(int width, int height);
         void onDrawFrame();
     }
+
+
 }
