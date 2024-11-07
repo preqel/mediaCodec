@@ -13,6 +13,7 @@ import android.view.SurfaceHolder;
 
 /***
  ** 编码录制视频的线程（重要）
+ *
  */
 public class RecordSurfaceRenderHandler extends Handler {
 
@@ -120,10 +121,10 @@ public class RecordSurfaceRenderHandler extends Handler {
         private final Object mSync = new Object();
         private RecordSurfaceRenderHandler mHandler;
         private EGLBase mEgl;
-         private EGLSurface mTargetSurface;
+        private EGLSurface mTargetSurface;
      //   private EGLBase.EglSurface mTargetSurface;
         private Surface mSurface;
-        private GLDrawer2D mDrawer;
+        private GLDrawer2D mDrawer ;
 
         public RenderThread(final String name) {
             super(name);
@@ -147,14 +148,32 @@ public class RecordSurfaceRenderHandler extends Handler {
          */
         public final void handleSetEglContext(final EGLContext shard_context, final Object surface, final boolean isRecordable) {
             if (DEBUG) Log.i(TAG_THREAD, "setEglContext:");
+            Log.d("cjs2", " handle sEt Egl Context");
             release();
             synchronized (mSync) {
-                mSurface = surface instanceof Surface ? (Surface)surface
-                        : (surface instanceof SurfaceTexture ? new Surface((SurfaceTexture)surface) : null);
+                if(surface instanceof SurfaceTexture){
+                    mSurface = new Surface((SurfaceTexture) surface);
+                } else {
+                    Log.d("cjs2", "surface type wrong");
+                }
+//                mSurface = surface instanceof Surface ? (Surface)surface
+//                        : (surface instanceof SurfaceTexture ? new Surface((SurfaceTexture)surface) : null);
             }
+
             mEgl = new EGLBase(shard_context, false, isRecordable);
-            mTargetSurface = mEgl.createFromSurface(surface);
-            mDrawer = new GLDrawer2D();
+        //    mEgl.createEGLEnv();
+            mEgl.createDisplay();
+            mEgl.createConfig();
+            mEgl.createContext(shard_context);
+            if(mVideoEncoder!= null){
+                mEgl.mEGLSurface =  mEgl.createWindowSurface(   mVideoEncoder.getmInputSurface());
+                mEgl.makeCurrent();
+                mTargetSurface = mEgl.mEGLSurface;
+                mDrawer = new GLDrawer2D();
+            }
+          //  mTargetSurface = mEgl.createFromSurface(surface);
+            Log.d("cjs2", "mDraw init");
+
         }
 
         /**
@@ -174,6 +193,8 @@ public class RecordSurfaceRenderHandler extends Handler {
             }
         }
 
+
+        SurfaceEncoder mVideoEncoder;
         /**
          * @wei 未启动record时, 线程会跑几帧后在swap阻塞.猜测是由于 InputSurface无效.
          * v2 加判断,Recording时才真正画
@@ -182,19 +203,30 @@ public class RecordSurfaceRenderHandler extends Handler {
          * @param timestampNanos
          */
         private void handleFrameAvailable(int tex_id,float[] transform, long timestampNanos) {
-            Log.v(TAG,"handleFrameAvailable #0");
-            SurfaceEncoder mVideoEncoder = SurfaceEncoder.getInstance();
+            Log.v(TAG,"handleFrameAvailable #0"+ timestampNanos);
+             mVideoEncoder = SurfaceEncoder.getInstance();
             if(mVideoEncoder==null || !mVideoEncoder.isRecording())
                 return;
             Log.d(TAG, "handleDrain: #3");
             mVideoEncoder.drainAllEncoderMuxer(false);
-            if(mDrawer== null)
+            if(mDrawer == null)
             {
+                Log.d("cjs2", "mDraw is null ");
+
+                Log.v(TAG,"handleFrameAvailable mDrawer null");
                 return;
             }
             mDrawer.draw(tex_id, transform);
            // mTargetSurface.setPresentationTime(timestampNanos);
-            mEgl.setPresentationTime(timestampNanos);
+            if(mEgl == null){
+                Log.v(TAG,"mEgl is null before handleFrameAvailable#1 ");
+            }
+            try{
+               mEgl.setPresentationTime(timestampNanos);
+            } catch (Exception e){
+                Log.e("cjs2", "error happend");
+                Log.e("cjs2", e.getMessage());
+            }
         //    mTargetSurface.swap();
             mEgl.swapBuffer();
             Log.v(TAG,"handleFrameAvailable #1");
@@ -220,6 +252,8 @@ public class RecordSurfaceRenderHandler extends Handler {
         private final void release() {
             if (DEBUG) Log.v(TAG_THREAD, "release:");
             if (mDrawer != null) {
+                Log.d("cjs2", "mDraw set  null ");
+
                 mDrawer.release();
                 mDrawer = null;
             }

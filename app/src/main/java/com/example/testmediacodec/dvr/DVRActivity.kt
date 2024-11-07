@@ -3,6 +3,7 @@ package com.example.testmediacodec.dvr
 import android.graphics.Bitmap
 import android.graphics.SurfaceTexture
 import android.hardware.Camera
+import android.opengl.EGLContext
 import android.opengl.GLSurfaceView
 import android.os.Bundle
 import android.util.Log
@@ -24,7 +25,7 @@ class DVRActivity : ComponentActivity(), Model.Callback{
     private var glSurfaceView:GLSurfaceView?= null
     private var surfaceTexture:SurfaceTexture?= null
 
-    var recordSurfaceRenderHandler = RecordSurfaceRenderHandler.createHandler()
+    lateinit  var recordSurfaceRenderHandler :RecordSurfaceRenderHandler
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -32,7 +33,7 @@ class DVRActivity : ComponentActivity(), Model.Callback{
         setContentView(R.layout.activity_dvr)
         mImageView = findViewById(R.id.iv_show)
         glSurfaceView = findViewById(R.id.GLsurfaceView)
-
+        recordSurfaceRenderHandler = RecordSurfaceRenderHandler.createHandler()
         findViewById<Button>(R.id.btnOK).setOnClickListener{
             //RecordSurfaceRenderHandler()'
             //todo 这里
@@ -41,14 +42,17 @@ class DVRActivity : ComponentActivity(), Model.Callback{
         }
 
         findViewById<Button>(R.id.btnstop).setOnClickListener {
-            val message = recordSurfaceRenderHandler.obtainMessage()
-           recordSurfaceRenderHandler.sendMessage(message);
-            val handler = RecordSurfaceRenderHandler.createHandler()
-            val eglbase = EGLBase(this@DVRActivity)
-            eglbase.createEGLEnv()
-            if(eglbase.mEGLContext != null){
-                handler.setEglContext(eglbase.mEGLContext , surfacetesxtid, surfaceTexture,true )
+//            val message = recordSurfaceRenderHandler.obtainMessage()
+//           recordSurfaceRenderHandler.sendMessage(message);
+//            val eglbase = EGLBase(this@DVRActivity)
+//            eglbase.createEGLEnv()
+          //  if(eglbase.mEGLContext != null){
+                //这里有问题
+
+            if(shareContext!= null){
+                 recordSurfaceRenderHandler.setEglContext(shareContext , surfacetesxtid, surfaceTexture,true )
             }
+         //   }
         }
 
         surfaceTexture = SurfaceTexture(surfacetesxtid)
@@ -61,11 +65,13 @@ class DVRActivity : ComponentActivity(), Model.Callback{
         mEGlSurface!!.requestRender()
 }
 
+    var shareContext:EGLContext?= null   //共享的上下文
+
     private fun initEGLSurface() {
         mEGlSurface = MyEGLSurface(this)
         val render: MyRender = MyRender(resources)
         render.setCallback(this)
-        mEGlSurface!!.init(render)
+        shareContext =   mEGlSurface!!.init(render)
     }
 
     override fun onCall(bitmap: Bitmap?) {
@@ -108,11 +114,11 @@ class DVRActivity : ComponentActivity(), Model.Callback{
             })
             surfaceTexture?.setOnFrameAvailableListener {
                     surfaceTexture->
-                Log.d("TAG23","OnFrameAvailable")
                 if(mTransformMatrix== null){
                     mTransformMatrix = FloatArray(16)
                 }
                 surfaceTexture.getTransformMatrix(mTransformMatrix)
+                Log.d("TAG23","OnFrameAvailable" + mTransformMatrix.joinToString("-"))
                 val timestamp = surfaceTexture.timestamp
                 if(timestamp == 0L){
                     Log.d("TAG24", "timestamp null")

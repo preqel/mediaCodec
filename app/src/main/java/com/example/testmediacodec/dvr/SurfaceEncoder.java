@@ -10,6 +10,7 @@ import android.media.MediaMuxer;
 import android.os.Environment;
 import android.util.Log;
 import android.view.Surface;
+import android.view.SurfaceView;
 
 import com.example.testmediacodec.util.StorageUtil;
 
@@ -17,13 +18,13 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-
+//正在使用的
 public class SurfaceEncoder {
     private static final int FRAME_RATE = 30;
     private static final int IFRAME_INTERVAL = 10;
 
-    private static final int height = 300;
-    private static final int width = 300;
+    private static final int height = 400;
+    private static final int width = 400;
 
     static SurfaceEncoder mSufaceEncoder;
     private FileOutputStream mOuputFile;
@@ -37,6 +38,7 @@ public class SurfaceEncoder {
     private MediaCodec.BufferInfo mBufferInfo;
     private boolean mMuxerStarted;
     private Object sMuxSync = new Object();
+    private Surface mInputSurface;
 
     public static SurfaceEncoder getInstance(){
         if(mSufaceEncoder== null){
@@ -50,8 +52,7 @@ public class SurfaceEncoder {
         return true;
     }
 
-    public SurfaceEncoder()
-              {
+    public SurfaceEncoder() {
                   Log.d("TAG24", "SurfaceEncoder init");
         int bitRate = height * width * 3 * 8 * FRAME_RATE / 256;
         mBufferInfo = new MediaCodec.BufferInfo();
@@ -79,7 +80,7 @@ public class SurfaceEncoder {
 
 
         mEncoder.configure(format, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
-     //   mInputSurface = mEncoder.createInputSurface();
+        mInputSurface = mEncoder.createInputSurface();
         mEncoder.start();
         mMuxer = new MediaMuxer(outputFile.toString(), MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
         Log.d("TAG24", "SurfaceEncoder init middle2"+ outputFile);
@@ -91,6 +92,8 @@ public class SurfaceEncoder {
         mMuxerStarted = false;
         Log.d("TAG24", "SurfaceEncoder init end");
     }
+
+    int stopCounterTest = 0;
 
 
 
@@ -134,7 +137,8 @@ public class SurfaceEncoder {
                     Log.d(TAG, "mEncoder output format changed: " + newFormat);
                     if(mMuxer!=null){
                         mVideoTrackIndex = mMuxer.addTrack(newFormat);
-                        //tryStartMuxer();  这里本来是没注掉的
+                      //  tryStartMuxer();  //这里本来是没注掉的
+                        mMuxerStarted = true;
                         mMuxer.start();
                     }
                     if(mOuputFile!=null){
@@ -184,6 +188,7 @@ public class SurfaceEncoder {
                     mEncoder.releaseOutputBuffer(encoderStatus, false);
 
                     if ((mBufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0) {
+                        mMuxerStarted = false;
                         if (!endOfStream) {
                             Log.w(TAG, "reached end of stream unexpectedly");
                         } else {
@@ -201,10 +206,14 @@ public class SurfaceEncoder {
                 sMuxSync.notifyAll();
             }
         }
-/*        if(stopCounterTest++ >=400){
+        if(stopCounterTest++ >=800){
             stopCounterTest = 0;
             mMuxer.stop();
             mMuxer.release();
-        }*/
+        }
+    }
+
+    public Surface getmInputSurface() {
+        return mInputSurface;
     }
 }

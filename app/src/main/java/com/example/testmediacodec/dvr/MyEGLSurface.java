@@ -1,6 +1,7 @@
 package com.example.testmediacodec.dvr;
 
 import android.content.Context;
+import android.opengl.EGLContext;
 
 /**
  * Created by QJMOTOR on 2024/11/5.
@@ -16,9 +17,9 @@ public class MyEGLSurface extends BaseEGLSurface{
         super(context, width, height);
     }
 
-    public void init(Renderer renderer) {
+    public EGLContext init(Renderer renderer) {
         setRenderer(renderer);
-        createEGLEnv();
+        return  createEGLEnv();
     }
 
 }

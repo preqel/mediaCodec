@@ -72,15 +72,17 @@ public class BaseEGLSurface {
     }
 
     // 创建EGL环境
-    public void createEGLEnv() {
+    //这里本来是void，改成返回eglcontext
+    public EGLContext createEGLEnv() {
         createDisplay();
         createConfig();
         createContext();
         createSurface();
         makeCurrent();
 
+        return mEGLContext;
 
-        SurfaceTexture surfaceTexture = new SurfaceTexture(1);
+       // SurfaceTexture surfaceTexture = new SurfaceTexture(1);
 
         //opengl初始化，
         // 纹理初始化，

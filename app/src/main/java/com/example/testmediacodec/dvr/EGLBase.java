@@ -28,8 +28,8 @@ public class EGLBase {
     protected Context mContext;
     protected BaseEGLSurface.Renderer mRenderer;
     protected BaseEGLSurface.EglStatus mEglStatus = BaseEGLSurface.EglStatus.INVALID;
-    protected int mWidth;
-    protected int mHeight;
+    protected int mWidth =400;
+    protected int mHeight =400;
 
     public EGLBase(Context context) {
         mContext = context;
@@ -108,14 +108,14 @@ public class EGLBase {
     }
 
     // 1.创建EGLDisplay
-    private void createDisplay() {
+    public  void createDisplay() {
         mEGLDisplay = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY);
         int[] versions = new int[2];
         EGL14.eglInitialize(mEGLDisplay, versions,0, versions, 1);
     }
 
     // 2.创建EGLConfig
-    private void createConfig() {
+    public void createConfig() {
         EGLConfig[] configs = new EGLConfig[1];
         int[] configNum = new int[1];
         EGL14.eglChooseConfig(mEGLDisplay, mEGLConfigAttrs, 0, configs, 0,1,  configNum, 0);
@@ -125,18 +125,45 @@ public class EGLBase {
     }
 
     // 3.创建EGLContext
-    private void createContext() {
+    public void createContext() {
         if (mEGLConfig != null) {
             mEGLContext = EGL14.eglCreateContext(mEGLDisplay, mEGLConfig, EGL14.EGL_NO_CONTEXT, mEGLContextAttrs, 0);
         }
     }
 
+    // 3.根据传入的EGLContext 创建eglContext
+    public void createContext(EGLContext context) {
+        // 创建openGL上下文
+        int contextAttribs[] = {
+                EGL14.EGL_CONTEXT_CLIENT_VERSION, 3,
+                EGL14.EGL_NONE
+        };
+        mEGLContext = EGL14.eglCreateContext(mEGLDisplay, mEGLConfig, context, contextAttribs, 0);
+        if (mEGLContext == EGL14.EGL_NO_CONTEXT) {
+            throw new RuntimeException("EGL error " + EGL14.eglGetError());
+        }
+    }
+
+
     // 4.创建EGLSurface
-    private void createSurface() {
+    public void createSurface() {
         if (mEGLContext != null && mEGLContext != EGL14.EGL_NO_CONTEXT) {
             int[] eglSurfaceAttrs = {EGL14.EGL_WIDTH, mWidth, EGL14.EGL_HEIGHT, mHeight, EGL14.EGL_NONE};
             mEGLSurface = EGL14.eglCreatePbufferSurface(mEGLDisplay, mEGLConfig, eglSurfaceAttrs, 0);
         }
+    }
+
+    public EGLSurface createWindowSurface(Object surface) {
+        return createWindowSurface(mEGLConfig, surface);
+    }
+
+    public EGLSurface createWindowSurface(EGLConfig config, Object surface) {
+        EGLSurface eglSurface = EGL14.eglCreateWindowSurface(mEGLDisplay, config, surface, new int[]{EGL14.EGL_NONE}, 0);
+        if (eglSurface == EGL14.EGL_NO_SURFACE) {
+            Log.d(TAG, "createWindowSurface" + EGL14.eglGetError());
+            return null;
+        }
+        return eglSurface;
     }
 
     public EGLSurface createFromSurface(Object surface) {
@@ -176,13 +203,22 @@ public class EGLBase {
     //释放
     public void release() {
 
+        EGL14.eglMakeCurrent(mEGLDisplay, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_CONTEXT);
+        if (mEGLSurface != null) {
+            EGL14.eglDestroySurface(mEGLDisplay, mEGLSurface);
+        }
+        if (mEGLContext != null) {
+            EGL14.eglDestroyContext(mEGLDisplay, mEGLContext);
+        }
+        EGL14.eglTerminate(mEGLDisplay);
+        mEGLContext = EGL14.EGL_NO_CONTEXT;
+        mEGLDisplay = EGL14.EGL_NO_DISPLAY;
 
     }
 
     //释放
     public void releaseTartetSurface(){
-
-
+        EGL14.eglDestroySurface(mEGLDisplay, mEGLSurface);
     }
 
     // EGL状态
@@ -194,6 +230,7 @@ public class EGLBase {
     }
 
     public boolean setPresentationTime( long timeStamp) {
+
         if (!EGLExt.eglPresentationTimeANDROID(mEGLDisplay, mEGLSurface, timeStamp)) {
             Log.d(TAG, "setPresentationTime" + EGL14.eglGetError());
             return false;
