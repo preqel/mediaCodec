@@ -18,7 +18,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-//正在使用的
+//正在使用的编码器
 public class SurfaceEncoder {
     private static final int FRAME_RATE = 30;
     private static final int IFRAME_INTERVAL = 10;
@@ -206,7 +206,7 @@ public class SurfaceEncoder {
                 sMuxSync.notifyAll();
             }
         }
-        if(stopCounterTest++ >=800){
+        if(stopCounterTest++ >= 800){
             stopCounterTest = 0;
             mMuxer.stop();
             mMuxer.release();

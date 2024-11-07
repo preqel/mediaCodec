@@ -13,7 +13,7 @@ import android.view.TextureView
 import android.view.View
 import android.widget.Button
 import androidx.activity.ComponentActivity
-import com.example.testmediacodec.render.TestRender
+import com.example.testmediacodec.render.DemoRenderer
 import com.example.testmediacodec.util.EGLHelper
 import com.example.testmediacodec.widget.CameraGLSurfaceView
 import java.io.IOException
@@ -82,9 +82,13 @@ class HasPreviewActivity : ComponentActivity(), SurfaceHolder.Callback{
      surfaceTexture = SurfaceTexture(1)
      // val glsurfaceview = GLSurfaceView(this@HasPreviewActivity)
      glsurfaceview = findViewById<GLSurfaceView>(R.id.glsurfaceview)
-//
-     val render = TestRender(surfaceTexture, glsurfaceview)
-    glsurfaceview.setRenderer(render)
+//     val render = TestRender(surfaceTexture, glsurfaceview)
+     glsurfaceview.setRenderer(DemoRenderer())
+
+    //glsurfaceview.setRenderer(rend)
+
+//    val render = DemoRenderer(surfaceTexture, glsurfaceview)
+    //glsurfaceview.setRenderer(DemoRenderer())
 
 //    glsurfaceview.setEGLContextClientVersion(3);
 //    glsurfaceview.setRenderer(  com.example.testmediacodec.glsurfaceview2.CameraSurfaceRender(glsurfaceview));
@@ -154,11 +158,11 @@ class HasPreviewActivity : ComponentActivity(), SurfaceHolder.Callback{
         try {
 
             //如果不要图形
-            mCamera?.setPreviewTexture(surfaceTexture)
-//            mCamera?.setPreviewDisplay()
+//            mCamera?.setPreviewTexture(surfaceTexture)
+//            mCamera?.setPreviewDisplay(glsurfaceview.holder)
             //如果要显示camera
-//            surfaceView.visibility = View.VISIBLE
-//            mCamera?.setPreviewDisplay(surfaceView.holder)
+            surfaceView.visibility = View.VISIBLE
+            mCamera?.setPreviewDisplay(glsurfaceview.holder)
             mCamera?.setPreviewCallback(object: Camera.PreviewCallback {
                 override fun onPreviewFrame(data: ByteArray?, camera: Camera?) {
                     Log.d("TAG23","接受到数据了" )

@@ -10,62 +10,56 @@ import android.util.Log
 import android.widget.Button
 import android.widget.ImageView
 import androidx.activity.ComponentActivity
-import com.example.testmediacodec.HasPreviewActivity
-import com.example.testmediacodec.HasPreviewActivity.Companion
 import com.example.testmediacodec.R
-import com.example.testmediacodec.render.TestRender
 
 class DVRActivity : ComponentActivity(), Model.Callback{
 
     private var mImageView: ImageView? = null
+
     private var mEGlSurface: MyEGLSurface? = null
 
     val surfacetesxtid = 1
+
     private var mCamera :Camera?= null
+
     private var glSurfaceView:GLSurfaceView?= null
+
     private var surfaceTexture:SurfaceTexture?= null
 
     lateinit  var recordSurfaceRenderHandler :RecordSurfaceRenderHandler
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+    private var shareContext:EGLContext?= null   //共享的上下文
 
-    super.onCreate(savedInstanceState)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_dvr)
         mImageView = findViewById(R.id.iv_show)
         glSurfaceView = findViewById(R.id.GLsurfaceView)
         recordSurfaceRenderHandler = RecordSurfaceRenderHandler.createHandler()
         findViewById<Button>(R.id.btnOK).setOnClickListener{
-            //RecordSurfaceRenderHandler()'
-            //todo 这里
-            //recordSurfaceRenderHandler.setEglContext();
             start_camera()
         }
-
         findViewById<Button>(R.id.btnstop).setOnClickListener {
+            if(shareContext!= null){
+                recordSurfaceRenderHandler.setEglContext(shareContext , surfacetesxtid, surfaceTexture,true )
+            }
 //            val message = recordSurfaceRenderHandler.obtainMessage()
 //           recordSurfaceRenderHandler.sendMessage(message);
 //            val eglbase = EGLBase(this@DVRActivity)
 //            eglbase.createEGLEnv()
           //  if(eglbase.mEGLContext != null){
                 //这里有问题
-
-            if(shareContext!= null){
-                 recordSurfaceRenderHandler.setEglContext(shareContext , surfacetesxtid, surfaceTexture,true )
-            }
-         //   }
         }
 
         surfaceTexture = SurfaceTexture(surfacetesxtid)
-
         val render = TestRender(surfaceTexture, glSurfaceView)
         glSurfaceView?.setRenderer(render)
-//        val message = recordSurfaceRenderHandler.obtainMessage()
-//        recordSurfaceRenderHandler.sendMessage(message);
         initEGLSurface()
-        mEGlSurface!!.requestRender()
+        /**
+         * 不要显示图像了
+         */
+      //  mEGlSurface!!.requestRender()
 }
-
-    var shareContext:EGLContext?= null   //共享的上下文
 
     private fun initEGLSurface() {
         mEGlSurface = MyEGLSurface(this)

@@ -1,29 +1,34 @@
-package com.example.testmediacodec.render;
+package com.example.testmediacodec.testpreview;
 
 import android.graphics.SurfaceTexture;
+import android.hardware.Camera;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.util.Log;
+
+import java.io.IOException;
+
 import javax.microedition.khronos.egl.EGLConfig;
-import javax.microedition.khronos.opengles.GL;
 import javax.microedition.khronos.opengles.GL10;
 
 /**
  * Created by QJMOTOR on 2024/11/1.
  */
-public class TestRender implements GLSurfaceView.Renderer {
+public class TestSecondRender implements GLSurfaceView.Renderer , SurfaceTexture.OnFrameAvailableListener{
 
     private SurfaceTexture surfaceTexture;
 
     private int textureId;
 
     private GLSurfaceView glSurfaceView ;
+    private Camera camera;
 
-    public TestRender(SurfaceTexture surfaceTexture, GLSurfaceView glSurfaceView){
+    public TestSecondRender(SurfaceTexture surfaceTexture, GLSurfaceView glSurfaceView, android.hardware.Camera camera){
         Log.d("TAG23", "TestRender init");
         this.surfaceTexture = surfaceTexture;
         this.glSurfaceView = glSurfaceView;
+        this.camera = camera;
     }
 
     @Override
@@ -43,7 +48,9 @@ public class TestRender implements GLSurfaceView.Renderer {
         GLES20.glTexParameteri(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
 
 
+        surfaceTexture.setOnFrameAvailableListener( this);
 
+      //  GLES20.glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
         // 关联SurfaceTexture和纹理
 //        surfaceTexture.attachToGLContext(999);
 //        surfaceTexture.setOnFrameAvailableListener(new SurfaceTexture.OnFrameAvailableListener() {
@@ -61,6 +68,7 @@ public class TestRender implements GLSurfaceView.Renderer {
         Log.d("TAG23", "onDrawFrame");
         surfaceTexture.updateTexImage();
 
+
         // 绘制图像，这里需要使用shader等进行绘制
         // ...
     }
@@ -71,6 +79,20 @@ public class TestRender implements GLSurfaceView.Renderer {
 
         // 视图尺寸变化时的处理
         glSurfaceView.requestRender();
+
+        try {
+            camera.setPreviewTexture(surfaceTexture);
+            camera.startPreview();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+//        camera.
         //    GLES20.glViewport(0, 0, width, height);
+    }
+
+    @Override
+    public void onFrameAvailable(SurfaceTexture surfaceTexture) {
+        Log.d("TAG23", "onFramgeAvable");
+        glSurfaceView.requestRender();
     }
 }

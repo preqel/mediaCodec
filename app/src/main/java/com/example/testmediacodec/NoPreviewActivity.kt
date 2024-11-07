@@ -60,15 +60,10 @@ class NoPreviewActivity : ComponentActivity(), SurfaceHolder.Callback {
         enableEdgeToEdge()
         setContentView(R.layout.main3)
         val mOK =  findViewById<TextView>(R.id.btnOK)
-
-
         val mstop = findViewById<Button>(R.id.btnstop)
-        mstop.setOnClickListener {
-            stop_camera()
-        }
+
 
        val  surfaceView = findViewById(R.id.surfaceView) as SurfaceView
-//
 
         surfaceView.holder.addCallback(this)
 
@@ -81,7 +76,11 @@ class NoPreviewActivity : ComponentActivity(), SurfaceHolder.Callback {
         surfaceView.visibility = View.VISIBLE
 
         mOK.setOnClickListener {
+            Toast.makeText(this, "dd",Toast.LENGTH_SHORT).show()
             start_camera(surfaceView.holder)
+        }
+        mstop.setOnClickListener {
+            stop_camera()
         }
     }
 

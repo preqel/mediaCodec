@@ -28,8 +28,8 @@ public class EGLBase {
     protected Context mContext;
     protected BaseEGLSurface.Renderer mRenderer;
     protected BaseEGLSurface.EglStatus mEglStatus = BaseEGLSurface.EglStatus.INVALID;
-    protected int mWidth =400;
-    protected int mHeight =400;
+    protected int mWidth = 400;
+    protected int mHeight = 400;
 
     public EGLBase(Context context) {
         mContext = context;
@@ -47,7 +47,7 @@ public class EGLBase {
     }
 
     public EGLBase(EGLContext context,boolean flag , boolean isRecordable ){
-        this.mEGLContext =context;
+        this.mEGLContext = context;
     }
 
     // 设置渲染器
