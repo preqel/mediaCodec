@@ -60,6 +60,7 @@ class DVRActivity : ComponentActivity(), Model.Callback{
         val render: MyRender = MyRender(resources)
         render.setCallback(this)
         shareContext =   mEGlSurface!!.init(render)
+
     }
 
     override fun onCall(bitmap: Bitmap?) {
@@ -97,6 +98,7 @@ class DVRActivity : ComponentActivity(), Model.Callback{
                     if(data!= null && data.size> 0 ){
                         Log.d("TAG23","数据shi" + data.size)
                     }
+                  //  mEGlSurface?.requestRender()
                   //  surfaceTexture?.updateTexImage()
                 }
             })
@@ -106,6 +108,7 @@ class DVRActivity : ComponentActivity(), Model.Callback{
                     mTransformMatrix = FloatArray(16)
                 }
                 surfaceTexture.getTransformMatrix(mTransformMatrix)
+               // mEGlSurface?.requestRender()
                 Log.d("TAG23","OnFrameAvailable" + mTransformMatrix.joinToString("-"))
                 val timestamp = surfaceTexture.timestamp
                 if(timestamp == 0L){

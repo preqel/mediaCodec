@@ -102,6 +102,7 @@ public class TestPreviewActivity extends Activity implements SurfaceTexture.OnFr
         com.example.testmediacodec.dvr.MyRender render =new  com.example.testmediacodec.dvr.MyRender(this.getResources());
         render.setCallback(this);
         shareContext =   mEGlSurface.init(render);
+       render.onSurfaceCreated();
     }
 
     private void requestPermission(){
