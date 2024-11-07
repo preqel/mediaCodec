@@ -43,12 +43,6 @@ class DVRActivity : ComponentActivity(), Model.Callback{
             if(shareContext!= null){
                 recordSurfaceRenderHandler.setEglContext(shareContext , surfacetesxtid, surfaceTexture,true )
             }
-//            val message = recordSurfaceRenderHandler.obtainMessage()
-//           recordSurfaceRenderHandler.sendMessage(message);
-//            val eglbase = EGLBase(this@DVRActivity)
-//            eglbase.createEGLEnv()
-          //  if(eglbase.mEGLContext != null){
-                //这里有问题
         }
 
         surfaceTexture = SurfaceTexture(surfacetesxtid)

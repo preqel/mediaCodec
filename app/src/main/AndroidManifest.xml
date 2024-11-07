@@ -55,7 +55,10 @@
         </activity>
 
         <activity android:name=".TestPreviewActivity" android:exported="true">
-
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
 
         <activity android:name=".encode.EncodeUsingSurfaceActivity"
@@ -70,10 +73,7 @@
         <activity android:name=".dvr.DVRActivity"
             android:exported="true">
 
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+
 
 <!--            <intent-filter>-->
 <!--                <action android:name="android.intent.action.MAIN" />-->

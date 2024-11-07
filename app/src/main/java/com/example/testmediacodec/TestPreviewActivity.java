@@ -6,15 +6,21 @@ import static android.opengl.GLES20.glClearColor;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
+import android.opengl.EGLContext;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
 
+import com.example.testmediacodec.dvr.Model;
+import com.example.testmediacodec.dvr.MyEGLSurface;
+import com.example.testmediacodec.dvr.RecordSurfaceRenderHandler;
 import com.example.testmediacodec.testpreview.HRender;
 import com.example.testmediacodec.testpreview.TestSecondRender;
 import com.example.testmediacodec.testpreview.Triangle;
@@ -27,7 +33,7 @@ import javax.microedition.khronos.opengles.GL10;
 /**
  * Created by QJMOTOR on 2024/11/7.
  */
-public class TestPreviewActivity extends Activity implements SurfaceTexture.OnFrameAvailableListener {
+public class TestPreviewActivity extends Activity implements SurfaceTexture.OnFrameAvailableListener, Model.Callback {
     private String TAG = "CameraActivity";
     private final int PERMISSION_CODE = 1;
     private int mOESTextureId = -1;
@@ -35,18 +41,42 @@ public class TestPreviewActivity extends Activity implements SurfaceTexture.OnFr
 
     private GLSurfaceView glSurfaceView;
     private SurfaceTexture mSurfaceTexture;
+
+
+
+
+    //************
+    private EGLContext shareContext  ; //共享的上下文
+
+   private RecordSurfaceRenderHandler recordSurfaceRenderHandler ;
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mCamera = Camera.open();
         setContentView(R.layout.activity_test_preview);
+        recordSurfaceRenderHandler = RecordSurfaceRenderHandler.createHandler();
         findViewById(R.id.btn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+
 //                Intent intent = new Intent(CameraActivity.this, EmptyActivity.class);
 //                startActivity(intent);
             }
         });
+        findViewById(R.id.stop).setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                if(shareContext!= null){
+                    recordSurfaceRenderHandler.setEglContext(shareContext , 1, mSurfaceTexture,true );
+                }
+
+            }
+        });
+
 //        requestPermission();
         mSurfaceTexture = new SurfaceTexture(1);
 
@@ -54,14 +84,24 @@ public class TestPreviewActivity extends Activity implements SurfaceTexture.OnFr
         //设置渲染GLES版本
         glSurfaceView.setEGLContextClientVersion(2);
         //设置渲染回调
-    //    glSurfaceView.setRenderer(new TestRender(mSurfaceTexture,glSurfaceView));
-       glSurfaceView.setRenderer(new TestSecondRender(mSurfaceTexture, glSurfaceView, mCamera));
+      glSurfaceView.setRenderer(new MyRender(this));
+      // glSurfaceView.setRenderer(new MyRender(mSurfaceTexture, glSurfaceView, mCamera));
 
        // glSurfaceView.setRenderer(new HRender(TestPreviewActivity.this, mCamera, mSurfaceTexture, glSurfaceView));
         /*渲染方式，RENDERMODE_WHEN_DIRTY表示被动渲染，只有在调用requestRender或者onResume等方法时才会进行渲染。RENDERMODE_CONTINUOUSLY表示持续渲染*/
         glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
 
        // Log.d(TAG, "onCreate: 这是相机页面");
+
+        initEGLSurface();
+    }
+
+
+    private void initEGLSurface() {
+        MyEGLSurface  mEGlSurface = new MyEGLSurface(this);
+        com.example.testmediacodec.dvr.MyRender render =new  com.example.testmediacodec.dvr.MyRender(this.getResources());
+        render.setCallback(this);
+        shareContext =   mEGlSurface.init(render);
     }
 
     private void requestPermission(){
@@ -74,9 +114,30 @@ public class TestPreviewActivity extends Activity implements SurfaceTexture.OnFr
       //  PermissionHelper.requestPermissionsResult(this, requestCode, permissions, grantResults);
     }
 
+    float[] mTransformMatrix = new  float[16];
     @Override
     public void onFrameAvailable(SurfaceTexture surfaceTexture){
         glSurfaceView.requestRender();
+        if(mTransformMatrix== null){
+            mTransformMatrix = new  float[16];
+        }
+        surfaceTexture.getTransformMatrix(mTransformMatrix);
+        Log.d("TAG23","OnFrameAvailable" );
+        long timestamp = surfaceTexture.getTimestamp();
+        if(timestamp == 0L){
+            Log.d("TAG24", "timestamp null");
+        } else {
+            //向另外要给线程发送数据，感谢https://www.jianshu.com/p/702e7b065eb3
+            Message message = recordSurfaceRenderHandler.obtainMessage(RecordSurfaceRenderHandler.MSG_RENDER_DRAW2, (int) (timestamp >> 32), (int)timestamp, mTransformMatrix);
+            recordSurfaceRenderHandler.sendMessage(message);
+        }
+      //  setOnFrameAvailableListener
+
+    }
+
+    @Override
+    public void onCall(Bitmap bitmap) {
+
     }
 
     public class MyRender implements GLSurfaceView.Renderer{
