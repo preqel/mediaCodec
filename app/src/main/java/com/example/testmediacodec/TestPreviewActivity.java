@@ -61,6 +61,7 @@ public class TestPreviewActivity extends Activity implements SurfaceTexture.OnFr
         findViewById(R.id.btn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                RecordSurfaceRenderHandler.idfff =1;
 
 
 //                Intent intent = new Intent(CameraActivity.this, EmptyActivity.class);
@@ -154,12 +155,14 @@ public class TestPreviewActivity extends Activity implements SurfaceTexture.OnFr
             //擦除颜色红色
             glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
             mOESTextureId = createOESTextureObject();
+
             //创建一个渲染图
             mSurfaceTexture = new SurfaceTexture(mOESTextureId);
             //new一个控制GLES渲染的类
             triangle = new Triangle(context);
             try {
                 mCamera.setPreviewTexture(mSurfaceTexture);
+              //  mCamera.setPreviewDisplay(glSurfaceView.getHolder());
                 mCamera.startPreview();
             } catch (IOException e) {
                 e.printStackTrace();

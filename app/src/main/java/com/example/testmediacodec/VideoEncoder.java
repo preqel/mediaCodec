@@ -30,6 +30,8 @@ public class VideoEncoder {
     private int mTrackIndex;
     private boolean mMuxerStarted;
 
+
+
     public VideoEncoder(int width, int height, File outputFile)
             throws IOException {
         int bitRate = height * width * 3 * 8 * FRAME_RATE / 256;

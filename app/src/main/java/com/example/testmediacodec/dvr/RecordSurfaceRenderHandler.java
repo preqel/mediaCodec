@@ -11,6 +11,12 @@ import android.util.Log;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 
+import com.example.testmediacodec.VideoEncoder;
+import com.example.testmediacodec.util.StorageUtil;
+
+import java.io.File;
+import java.io.IOException;
+
 /***
  ** 编码录制视频的线程（重要）
  *
@@ -34,6 +40,8 @@ public class RecordSurfaceRenderHandler extends Handler {
     private int mTexId = -1;
 
     private final RenderThread mThread;
+
+    public  static int idfff = 0;
 
     /**安全获得RenderHandler*/
     public static RecordSurfaceRenderHandler createHandler() {
@@ -166,7 +174,8 @@ public class RecordSurfaceRenderHandler extends Handler {
             mEgl.createConfig();
             mEgl.createContext(shard_context);
             if(mVideoEncoder!= null){
-                mEgl.mEGLSurface =  mEgl.createWindowSurface(   mVideoEncoder.getmInputSurface());
+                mEgl.mEGLSurface =  mEgl.createWindowSurface(   videoEncoder2.getInputSurface());
+                //  mEgl.mEGLSurface =  mEgl.createWindowSurface(   mVideoEncoder.getmInputSurface());
                 mEgl.makeCurrent();
                 mTargetSurface = mEgl.mEGLSurface;
                 mDrawer = new GLDrawer2D();
@@ -195,6 +204,8 @@ public class RecordSurfaceRenderHandler extends Handler {
 
 
         SurfaceEncoder mVideoEncoder;
+
+          VideoEncoder videoEncoder2;
         /**
          * @wei 未启动record时, 线程会跑几帧后在swap阻塞.猜测是由于 InputSurface无效.
          * v2 加判断,Recording时才真正画
@@ -202,13 +213,46 @@ public class RecordSurfaceRenderHandler extends Handler {
          * @param transform
          * @param timestampNanos
          */
+
+
+
         private void handleFrameAvailable(int tex_id,float[] transform, long timestampNanos) {
             Log.v(TAG,"handleFrameAvailable #0"+ timestampNanos);
              mVideoEncoder = SurfaceEncoder.getInstance();
+
+
             if(mVideoEncoder==null || !mVideoEncoder.isRecording())
                 return;
-            Log.d(TAG, "handleDrain: #3");
-            mVideoEncoder.drainAllEncoderMuxer(false);
+            String  outputFile = StorageUtil.getVedioPath(true) + "dvrt.mp4";
+            Log.d("TAG23", "output"+ outputFile);
+            if(videoEncoder2 == null){
+                File file = new File(outputFile);
+                try {
+                    videoEncoder2 = new VideoEncoder(400, 400, file);
+                }catch (IOException io){
+                    Log.d("TAG23", "exec"+ outputFile + io.getMessage());
+                    io.printStackTrace();
+                }
+            }
+            Log.d(TAG, "handleDrain: #3"+ idfff);
+
+
+
+          //  mVideoEncoder.drainAllEncoderMuxer(false);
+         //   mVideoEncoder.drainAllEncoderMuxer(false);
+
+//            if(idfff  ==1 ){
+//                Log.d(TAG, "drainEncoder: true");
+//                videoEncoder2.drainEncoder(true);
+//            } else {
+                Log.d(TAG, "drainEncoder: false");
+                videoEncoder2.drainEncoder(false);
+//            }
+//            if(i>1000){
+//                videoEncoder2.drainEncoder(true);
+//            } else {
+            //    videoEncoder2.drainEncoder(false);
+//            }
             if(mDrawer == null)
             {
                 Log.d("cjs2", "mDraw is null ");

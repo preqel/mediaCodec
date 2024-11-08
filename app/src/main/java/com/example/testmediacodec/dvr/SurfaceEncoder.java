@@ -109,8 +109,12 @@ public class SurfaceEncoder {
         //recordAndMuxingAudio();
         try {
             if(mOuputFile == null)
-                mOuputFile = new FileOutputStream(Environment.getExternalStorageDirectory()+"/test.h264");
+               // mOuputFile= new FileOutputStream((StorageUtil.getVedioPath(true) + "dvrt.mp4"));
 
+
+              mOuputFile = new FileOutputStream(Environment.getExternalStorageDirectory().getAbsolutePath()+"/test.h264");
+            String ddd = Environment.getExternalStorageDirectory().getAbsolutePath()+"/test.h264";
+            Log.d(TAG,">>>>>"+ ddd);
 
             ByteBuffer[] encoderOutputBuffers = mEncoder.getOutputBuffers();
             while (true) {
@@ -206,7 +210,7 @@ public class SurfaceEncoder {
                 sMuxSync.notifyAll();
             }
         }
-        if(stopCounterTest++ >= 800){
+        if(stopCounterTest++ >= 400){
             stopCounterTest = 0;
             mMuxer.stop();
             mMuxer.release();
