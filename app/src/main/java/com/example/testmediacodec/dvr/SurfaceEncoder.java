@@ -26,7 +26,7 @@ public class SurfaceEncoder {
     private static final int height = 400;
     private static final int width = 400;
 
-    static SurfaceEncoder mSufaceEncoder;
+    static  SurfaceEncoder mSufaceEncoder;
     private FileOutputStream mOuputFile;
     private MediaCodec mEncoder;
     private long mVideoStartStampUs;
@@ -109,13 +109,17 @@ public class SurfaceEncoder {
         //recordAndMuxingAudio();
         try {
             if(mOuputFile == null)
-                mOuputFile = new FileOutputStream(Environment.getExternalStorageDirectory()+"/test.h264");
+               // mOuputFile= new FileOutputStream((StorageUtil.getVedioPath(true) + "dvrt.mp4"));
 
+
+              mOuputFile = new FileOutputStream(Environment.getExternalStorageDirectory().getAbsolutePath()+"/test.h264");
+            String ddd = Environment.getExternalStorageDirectory().getAbsolutePath()+"/test.h264";
+            Log.d(TAG,">>>>>"+ ddd);
 
             ByteBuffer[] encoderOutputBuffers = mEncoder.getOutputBuffers();
             while (true) {
                 int encoderStatus = mEncoder.dequeueOutputBuffer(mBufferInfo, TIMEOUT_USEC);
-                Log.v(TAG, "bufferInfo f:" + mBufferInfo.flags + "\tpts:" + mBufferInfo.presentationTimeUs);
+                Log.v(TAG, "bufferInfo f:" + mBufferInfo.flags + "\tpts:" + mBufferInfo.presentationTimeUs+" \tsize"+ mBufferInfo.size);
                 if (encoderStatus == MediaCodec.INFO_TRY_AGAIN_LATER) {
                     Log.v(TAG,"INFO_TRY_AGAIN_LATER");
                     // no output available yet
@@ -206,7 +210,7 @@ public class SurfaceEncoder {
                 sMuxSync.notifyAll();
             }
         }
-        if(stopCounterTest++ >= 800){
+        if(stopCounterTest++ >= 400){
             stopCounterTest = 0;
             mMuxer.stop();
             mMuxer.release();

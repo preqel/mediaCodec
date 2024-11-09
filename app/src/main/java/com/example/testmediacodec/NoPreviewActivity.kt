@@ -10,6 +10,7 @@ import android.graphics.SurfaceTexture
 import android.hardware.Camera
 import android.media.MediaPlayer
 import android.net.Uri
+import android.opengl.GLSurfaceView
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
@@ -42,6 +43,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.util.Consumer
+import com.example.testmediacodec.render.DemoRenderer
 import com.example.testmediacodec.ui.theme.TestMediaCodecTheme
 import java.io.File
 import java.io.IOException
@@ -63,8 +65,11 @@ class NoPreviewActivity : ComponentActivity(), SurfaceHolder.Callback {
         val mstop = findViewById<Button>(R.id.btnstop)
 
 
-       val  surfaceView = findViewById(R.id.surfaceView) as SurfaceView
+       val  surfaceView = findViewById(R.id.surfaceView) as GLSurfaceView
 
+
+//        surfaceView.setRenderer(DemoRenderer())
+//        surfaceView.setRenderer()
         surfaceView.holder.addCallback(this)
 
         surfaceView.holder?.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS)
@@ -112,7 +117,7 @@ class NoPreviewActivity : ComponentActivity(), SurfaceHolder.Callback {
             })
             surfaceTexture.setOnFrameAvailableListener {
                     surfaceTexture->Log.e("TAG23","OnFrame")
-                //  surfaceTexture.updateTexImage()
+                 // surfaceTexture.updateTexImage()
             }
             mCamera?.startPreview()
             //camera.takePicture(shutter, raw, jpeg)

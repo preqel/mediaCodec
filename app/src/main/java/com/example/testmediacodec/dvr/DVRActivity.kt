@@ -42,6 +42,7 @@ class DVRActivity : ComponentActivity(), Model.Callback{
         findViewById<Button>(R.id.btnstop).setOnClickListener {
             if(shareContext!= null){
                 recordSurfaceRenderHandler.setEglContext(shareContext , surfacetesxtid, surfaceTexture,true )
+
             }
         }
 
