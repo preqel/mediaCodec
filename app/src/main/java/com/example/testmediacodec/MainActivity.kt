@@ -35,6 +35,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.util.Consumer
+import com.example.testmediacodec.dvr.DVRActivity
+import com.example.testmediacodec.normal.NomalActivity
+import com.example.testmediacodec.normalsec.NormalSecActvity
+import com.example.testmediacodec.testsec.EncodeAndMuxTest
 import com.example.testmediacodec.ui.theme.TestMediaCodecTheme
 import java.io.File
 import java.io.IOException
@@ -47,6 +51,7 @@ class MainActivity : ComponentActivity() {
         companion object {
 
             val CAMERAX_PERMISSIONS = arrayOf(
+                android.Manifest.permission.READ_EXTERNAL_STORAGE,
                 android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
                 android.Manifest.permission.CAMERA,//请求相机
                 android.Manifest.permission.RECORD_AUDIO)//请求录制音频
@@ -83,6 +88,17 @@ class MainActivity : ComponentActivity() {
         val mStart = findViewById<TextView>(R.id.textView);
         val mStop = findViewById<TextView>(R.id.textView2);
         val mSwitch = findViewById<TextView>(R.id.textViewSwitch)
+
+        val dvr = findViewById<TextView>(R.id.dvr)
+        val testpreview = findViewById<TextView>(R.id.testpreview)
+        dvr.setOnClickListener {
+            val intent = Intent(this, DVRActivity::class.java)
+            startActivity(intent)
+        }
+        testpreview.setOnClickListener {
+            val intent = Intent(this, EncodeAndMuxTest::class.java)
+            startActivity(intent)
+        }
 
         val mGLSurface = findViewById<TextView>(R.id.textViewGLSurfaceView)
 

@@ -59,13 +59,13 @@ public class RenderDrawerGroups {
     public void surfaceChangedSize(int width, int height) {
         mFrameBuffer = GlesUtil.createFrameBuffer();
         mOriginalDrawer.surfaceChangedSize(width, height);
-        mWaterMarkDrawer.surfaceChangedSize(width, height);
+//        mWaterMarkDrawer.surfaceChangedSize(width, height);
         mDisplayDrawer.surfaceChangedSize(width, height);
         mRecordDrawer.surfaceChangedSize(width, height);
 
         this.mOriginalDrawer.setInputTextureId(mInputTexture);
         int textureId = this.mOriginalDrawer.getOutputTextureId();
-        mWaterMarkDrawer.setInputTextureId(textureId);
+//        mWaterMarkDrawer.setInputTextureId(textureId);
         mDisplayDrawer.setInputTextureId(textureId);
         mRecordDrawer.setInputTextureId(textureId);
     }

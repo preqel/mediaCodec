@@ -175,7 +175,7 @@ public class RecordSurfaceRenderHandler extends Handler {
             mEgl.createContext(shard_context);
             if(mVideoEncoder!= null){
                 mEgl.mEGLSurface =  mEgl.createWindowSurface(   videoEncoder2.getInputSurface());
-                //  mEgl.mEGLSurface =  mEgl.createWindowSurface(   mVideoEncoder.getmInputSurface());
+             //    mEgl.mEGLSurface =  mEgl.createWindowSurface(   mVideoEncoder.getmInputSurface());
                 mEgl.makeCurrent();
                 mTargetSurface = mEgl.mEGLSurface;
                 mDrawer = new GLDrawer2D();
@@ -238,16 +238,16 @@ public class RecordSurfaceRenderHandler extends Handler {
 
 
 
-          //  mVideoEncoder.drainAllEncoderMuxer(false);
+        //   mVideoEncoder.drainAllEncoderMuxer(false);
          //   mVideoEncoder.drainAllEncoderMuxer(false);
 
-//            if(idfff  ==1 ){
-//                Log.d(TAG, "drainEncoder: true");
-//                videoEncoder2.drainEncoder(true);
-//            } else {
+            if(idfff  ==1 ){
+                Log.d(TAG, "drainEncoder: true");
+                videoEncoder2.drainEncoder(true);
+            } else {
                 Log.d(TAG, "drainEncoder: false");
                 videoEncoder2.drainEncoder(false);
-//            }
+            }
 //            if(i>1000){
 //                videoEncoder2.drainEncoder(true);
 //            } else {
@@ -260,7 +260,7 @@ public class RecordSurfaceRenderHandler extends Handler {
                 Log.v(TAG,"handleFrameAvailable mDrawer null");
                 return;
             }
-            mDrawer.draw(tex_id, transform);
+            //mDrawer.draw(tex_id, transform);
            // mTargetSurface.setPresentationTime(timestampNanos);
             if(mEgl == null){
                 Log.v(TAG,"mEgl is null before handleFrameAvailable#1 ");

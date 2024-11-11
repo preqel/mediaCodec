@@ -25,6 +25,14 @@
         android:layout_height="wrap_content"></Button>
 
 
+    <Button
+        android:text="停止"
+        android:layout_gravity="right|bottom"
+        android:id="@+id/stopRecord"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content" />
+
+
     <android.opengl.GLSurfaceView
         android:backgroundTint="@color/purple_500"
         android:id="@+id/GLsurfaceView"
@@ -37,5 +45,7 @@
         android:layout_gravity="bottom|left"
         android:layout_width="200dp"
         android:layout_height="200dp" />
+
+
 
 </FrameLayout>

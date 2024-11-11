@@ -72,7 +72,6 @@ class NoPreviewActivity : ComponentActivity(), SurfaceHolder.Callback {
          * 这里很关键，如果是要展示，就用texttureview 的 surfaceview
          */
         surfaceTexture = SurfaceTexture(0)
-
         surfaceView.visibility = View.VISIBLE
 
         mOK.setOnClickListener {
@@ -108,6 +107,7 @@ class NoPreviewActivity : ComponentActivity(), SurfaceHolder.Callback {
             mCamera?.setPreviewCallback(object: Camera.PreviewCallback {
                 override fun onPreviewFrame(data: ByteArray?, camera: Camera?) {
                     Log.d("TAG23","接受到数据了")
+
                 }
             })
             surfaceTexture.setOnFrameAvailableListener {
