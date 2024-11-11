@@ -1,5 +1,7 @@
 package com.example.testmediacodec.dvr;
 
+import static android.opengl.GLES20.glClearColor;
+
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
@@ -8,7 +10,9 @@ import android.util.Log;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
-
+/*
+  https://aheadsnail.github.io/2020/12/23/audiovideorecordingsample-li-jie/ 这篇文章解释的很好
+ */
 public class GLDrawer2D {
 
     private static final boolean DEBUG = true; // TODO set false on release
@@ -102,6 +106,8 @@ public class GLDrawer2D {
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, VERTEX_NUM);
         GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, 0);
         GLES20.glUseProgram(0);
+        //todo delete
+       // glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
     }
 
     /**

@@ -1,16 +1,23 @@
 package com.example.testmediacodec.dvr
 
+import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.graphics.SurfaceTexture
 import android.hardware.Camera
+import android.media.MediaPlayer
 import android.opengl.EGLContext
 import android.opengl.GLSurfaceView
 import android.os.Bundle
 import android.util.Log
+import android.view.Surface
+import android.view.TextureView
 import android.widget.Button
 import android.widget.ImageView
 import androidx.activity.ComponentActivity
 import com.example.testmediacodec.R
+import com.example.testmediacodec.util.StorageUtil
+
+//https://blog.51cto.com/u_16213352/7046194
 
 class DVRActivity : ComponentActivity(), Model.Callback{
 
@@ -18,7 +25,11 @@ class DVRActivity : ComponentActivity(), Model.Callback{
 
     private var mEGlSurface: MyEGLSurface? = null
 
-    val surfacetesxtid = 1
+   lateinit var     mTextureView:TextureView
+
+    var surfacetesxtid = 1
+
+    var isTestFromLocalVideo = false   //是否采用本地视频作为数据源发送
 
     private var mCamera :Camera?= null
 
@@ -26,14 +37,20 @@ class DVRActivity : ComponentActivity(), Model.Callback{
 
     private var surfaceTexture:SurfaceTexture?= null
 
-    lateinit  var recordSurfaceRenderHandler :RecordSurfaceRenderHandler
+    private lateinit  var recordSurfaceRenderHandler :RecordSurfaceRenderHandler
 
     private var shareContext:EGLContext?= null   //共享的上下文
 
+    var isInitfinish= false;
+
+    @SuppressLint("SuspiciousIndentation")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_dvr)
         mImageView = findViewById(R.id.iv_show)
+        mTextureView = findViewById(R.id.iv_right_bottom)
+        surfacetesxtid = GLDrawer2D.initTex()
+        Log.d("TAG24","initText >>>>>"+ surfacetesxtid)
         glSurfaceView = findViewById(R.id.GLsurfaceView)
         recordSurfaceRenderHandler = RecordSurfaceRenderHandler.createHandler()
         findViewById<Button>(R.id.btnOK).setOnClickListener{
@@ -41,14 +58,57 @@ class DVRActivity : ComponentActivity(), Model.Callback{
         }
         findViewById<Button>(R.id.btnstop).setOnClickListener {
             if(shareContext!= null){
+                isInitfinish = true
                 recordSurfaceRenderHandler.setEglContext(shareContext , surfacetesxtid, surfaceTexture,true )
+            }
+        }
+
+        findViewById<Button>(R.id.stopRecord).setOnClickListener {
+           RecordSurfaceRenderHandler.idfff = 1
+        }
+
+        surfaceTexture = SurfaceTexture(surfacetesxtid)
+//      val render = TestRender(surfaceTexture, glSurfaceView)
+//        glSurfaceView?.setRenderer(render)
+      //  val render = OGRender(this@DVRActivity,surfaceTexture, glSurfaceView)
+        if(isTestFromLocalVideo){
+            val surface = Surface(surfaceTexture)
+            val mediaplayer = MediaPlayer.create(this, R.raw.video)
+            mediaplayer.setVolume(0.2f, 0.2f)
+            mediaplayer.setSurface(surface)
+            mediaplayer.isLooping= true
+            mediaplayer.start()
+            surfaceTexture?.setOnFrameAvailableListener { it->
+                Log.d("TAG23","onFragmeAvable 1")
+
+
+                if(mTransformMatrix== null){
+                    mTransformMatrix = FloatArray(16)
+                }
+                it.getTransformMatrix(mTransformMatrix)
+                // mEGlSurface?.requestRender()
+                Log.d("TAG23","OnFrameAvailable" + mTransformMatrix.joinToString("-"))
+                val timestamp = it.timestamp
+                if(timestamp == 0L){
+                    Log.d("TAG24", "timestamp null")
+                } else {
+//                val  mVideoPath = StorageUtil.getVedioPath(true) + "dvrt3.mp4"
+//                Log.d("TAG24", "videopath"+ mVideoPath)
+//                tUtil.reencodeSurfaceTexture(surfaceTexture, mVideoPath)
+
+                    //向另外要给线程发送数据，感谢https://www.jianshu.com/p/702e7b065eb3
+                    recordSurfaceRenderHandler.sendMessage(
+                        recordSurfaceRenderHandler.obtainMessage(
+                            RecordSurfaceRenderHandler.MSG_RENDER_DRAW2,
+                            (timestamp shr 32) .toInt(), timestamp.toInt(), mTransformMatrix
+                        )
+                    )
+                }
+                surfaceTexture?.updateTexImage()
 
             }
         }
 
-        surfaceTexture = SurfaceTexture(surfacetesxtid)
-        val render = TestRender(surfaceTexture, glSurfaceView)
-        glSurfaceView?.setRenderer(render)
         initEGLSurface()
         /**
          * 不要显示图像了
@@ -58,7 +118,8 @@ class DVRActivity : ComponentActivity(), Model.Callback{
 
     private fun initEGLSurface() {
         mEGlSurface = MyEGLSurface(this)
-        val render: MyRender = MyRender(resources)
+      val render: MyRender = MyRender(resources)
+     // val render = TriRender(this@DVRActivity)
         render.setCallback(this)
         shareContext =   mEGlSurface!!.init(render)
 
@@ -71,6 +132,7 @@ class DVRActivity : ComponentActivity(), Model.Callback{
     }
 
     var mTransformMatrix = FloatArray(16)
+    var tUtil:TUtil = TUtil()
 
     fun start_camera(){
         try {
@@ -100,7 +162,7 @@ class DVRActivity : ComponentActivity(), Model.Callback{
                         Log.d("TAG23","数据shi" + data.size)
                     }
                   //  mEGlSurface?.requestRender()
-                  //  surfaceTexture?.updateTexImage()
+                   surfaceTexture?.updateTexImage()
                 }
             })
             surfaceTexture?.setOnFrameAvailableListener {
@@ -115,13 +177,20 @@ class DVRActivity : ComponentActivity(), Model.Callback{
                 if(timestamp == 0L){
                     Log.d("TAG24", "timestamp null")
                 } else {
-                    //向另外要给线程发送数据，感谢https://www.jianshu.com/p/702e7b065eb3
+
+
+                 if(!isTestFromLocalVideo){
+                     //向另外要给线程发送数据，感谢https://www.jianshu.com/p/702e7b065eb3
                     recordSurfaceRenderHandler.sendMessage(
                         recordSurfaceRenderHandler.obtainMessage(
                             RecordSurfaceRenderHandler.MSG_RENDER_DRAW2,
                             (timestamp shr 32) .toInt(), timestamp.toInt(), mTransformMatrix
                         )
                     )
+
+                     mTextureView.setSurfaceTexture(surfaceTexture)
+                 }
+
                 }
                 //貌似不是这样写的
                 //   surfaceTexture.updateTexImage()
@@ -133,5 +202,8 @@ class DVRActivity : ComponentActivity(), Model.Callback{
             return
         }
     }
+
+
+
 
 }

@@ -62,10 +62,7 @@ public class TestPreviewActivity extends Activity implements SurfaceTexture.OnFr
             @Override
             public void onClick(View v) {
                 RecordSurfaceRenderHandler.idfff =1;
-
              //   recordSurfaceRenderHandler.sendEmptyMessage( RecordSurfaceRenderHandler.STOP_RECORD);
-
-
 //                Intent intent = new Intent(CameraActivity.this, EmptyActivity.class);
 //                startActivity(intent);
             }
@@ -133,7 +130,7 @@ public class TestPreviewActivity extends Activity implements SurfaceTexture.OnFr
             Log.d("TAG24", "timestamp null");
         } else {
             //向另外要给线程发送数据，感谢https://www.jianshu.com/p/702e7b065eb3
-            Message message = recordSurfaceRenderHandler.obtainMessage(RecordSurfaceRenderHandler.MSG_RENDER_DRAW2, (int) (timestamp >> 32), (int)timestamp, mTransformMatrix);
+            Message message = recordSurfaceRenderHandler.obtainMessage(RecordSurfaceRenderHandler.MSG_RENDER_DRAW, (int) (timestamp >> 32), (int)timestamp, mTransformMatrix);
             recordSurfaceRenderHandler.sendMessage(message);
         }
       //  setOnFrameAvailableListener

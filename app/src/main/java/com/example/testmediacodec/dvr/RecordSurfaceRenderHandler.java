@@ -17,7 +17,6 @@ import android.view.Surface;
 import android.view.SurfaceHolder;
 
 import com.example.testmediacodec.VideoEncoder;
-import com.example.testmediacodec.render.RecordRenderDrawer;
 import com.example.testmediacodec.util.StorageUtil;
 
 import java.io.File;
@@ -194,7 +193,7 @@ public class RecordSurfaceRenderHandler extends Handler {
             mEgl.createContext(shard_context);
             if(mVideoEncoder!= null){
                 mEgl.mEGLSurface =  mEgl.createWindowSurface(   mVideoEncoder.getmInputSurface());
-                //  mEgl.mEGLSurface =  mEgl.createWindowSurface(   mVideoEncoder.getmInputSurface());
+            //    mEgl.mEGLSurface =  mEgl.createWindowSurface(   videoEncoder2.getInputSurface());
                 mEgl.makeCurrent();
                 mTargetSurface = mEgl.mEGLSurface;
                 mDrawer = new GLDrawer2D();
@@ -261,7 +260,6 @@ public class RecordSurfaceRenderHandler extends Handler {
             GLES20.glDisable(GLES20.GL_SCISSOR_TEST);
         }
 
-
         /**
          * @wei 未启动record时, 线程会跑几帧后在swap阻塞.猜测是由于 InputSurface无效.
          * v2 加判断,Recording时才真正画
@@ -269,11 +267,6 @@ public class RecordSurfaceRenderHandler extends Handler {
          * @param transform
          * @param timestampNanos
          */
-
-
-
-
-
         private void handleFrameAvailable(int tex_id,float[] transform, long timestampNanos) {
             Log.v(TAG,"handleFrameAvailable #0"+ timestampNanos);
              mVideoEncoder = SurfaceEncoder.getInstance();
@@ -297,8 +290,21 @@ public class RecordSurfaceRenderHandler extends Handler {
 
 
             mVideoEncoder.drainAllEncoderMuxer(false);
+        //   mVideoEncoder.drainAllEncoderMuxer(false);
+         //   mVideoEncoder.drainAllEncoderMuxer(false);
 
-
+//            if(idfff  ==1 ){
+//                Log.d(TAG, "drainEncoder: true");
+//                videoEncoder2.drainEncoder(true);
+//            } else {
+//                Log.d(TAG, "drainEncoder: false");
+//                videoEncoder2.drainEncoder(false);
+//            }
+//            if(i>1000){
+//                videoEncoder2.drainEncoder(true);
+//            } else {
+            //    videoEncoder2.drainEncoder(false);
+//            }
             if(mDrawer == null)
             {
                 Log.d("cjs2", "mDraw is null ");
@@ -306,9 +312,8 @@ public class RecordSurfaceRenderHandler extends Handler {
                 Log.v(TAG,"handleFrameAvailable mDrawer null");
                 return;
             }
-
-            mDrawer.draw(tex_id, transform);
-       //   generateSurfaceFrame(0);
+          mDrawer.draw(tex_id, transform);
+        //  generateSurfaceFrame(0);
 
             //testDraw();
            // mTargetSurface.setPresentationTime(timestampNanos);

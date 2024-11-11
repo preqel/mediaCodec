@@ -10,6 +10,8 @@ import javax.microedition.khronos.opengles.GL10;
 
 /**
  * Created by QJMOTOR on 2024/11/1.
+ *
+ * https://blog.csdn.net/LiggerBill/article/details/142136556其实好像也问题不大
  */
 public class TestRender implements GLSurfaceView.Renderer {
 
@@ -59,6 +61,8 @@ public class TestRender implements GLSurfaceView.Renderer {
         // 更新SurfaceTexture的图像内容
         Log.d("TAG23", "onDrawFrame");
         surfaceTexture.updateTexImage();
+        GLES20.glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+
 
 
         // 绘制图像，这里需要使用shader等进行绘制
@@ -70,7 +74,7 @@ public class TestRender implements GLSurfaceView.Renderer {
         Log.d("TAG23", "onSurfaceChanged-" + width+ height);
 
         // 视图尺寸变化时的处理
-        glSurfaceView.requestRender();
+       // glSurfaceView.requestRender();
         //    GLES20.glViewport(0, 0, width, height);
     }
 }

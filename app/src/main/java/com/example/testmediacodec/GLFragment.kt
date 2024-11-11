@@ -57,6 +57,9 @@ class GLFragment : Fragment() , CameraProgressButton.Listener, CameraGLSurfaceVi
         initView(contentView)
         return contentView
     }
+    companion object{
+     public  var  i = 0
+    }
 
     private fun initView(contentView: View) {
         isFocusing = false
@@ -70,7 +73,11 @@ class GLFragment : Fragment() , CameraProgressButton.Listener, CameraGLSurfaceVi
         mCameraSensor!!.setCameraSensorListener(this)
         mProgressBtn?.setProgressListener(this)
         mCameraView?.setCallback(this@GLFragment)
+
+
         mCameraView?.setOnTouchListener(OnTouchListener { view, event ->
+
+
             if (event.action == MotionEvent.ACTION_DOWN) {
                 focus(event.x.toInt(), event.y.toInt(), false)
                 return@OnTouchListener true
@@ -78,6 +85,16 @@ class GLFragment : Fragment() , CameraProgressButton.Listener, CameraGLSurfaceVi
             false
         })
         mSwitchView?.setOnClickListener(View.OnClickListener {
+
+            i++;
+            if(mCameraView?.isShown == true){
+                mCameraView?.onPause()
+                mCameraView?.visibility = View.GONE
+            } else if(!mCameraView?.isShown!!){
+                mCameraView?.onResume()
+                mCameraView?.visibility = View.VISIBLE
+            }
+
             mCameraHanlder!!.sendEmptyMessage(
                 MSG_SWITCH_CAMERA
             )

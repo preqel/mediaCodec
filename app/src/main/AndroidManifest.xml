@@ -58,7 +58,10 @@
                         android:exported="true"
                         android:label="@string/app_name"
                         android:theme="@style/Theme.TestMediaCodec">
-
+                        <intent-filter>
+                            <action android:name="android.intent.action.MAIN" />
+                            <category android:name="android.intent.category.LAUNCHER" />
+                        </intent-filter>
                     </activity>
 
                     <activity android:name=".NoPreviewActivity" android:exported="true">
@@ -71,9 +74,6 @@
                         android:name=".HasPreviewActivity"
                         android:exported="true"
                       >
-
-
-
         </activity>
 
         <activity android:name=".TestPreviewActivity" android:exported="true">
@@ -81,6 +81,7 @@
 <!--                <action android:name="android.intent.action.MAIN" />-->
 <!--                <category android:name="android.intent.category.LAUNCHER" />-->
 <!--            </intent-filter>-->
+
         </activity>
 
         <activity android:name=".encode.EncodeUsingSurfaceActivity"
@@ -92,9 +93,19 @@
             android:exported="true"
             >
         </activity>
-        <activity android:name=".dvr.DVRActivity"
+        <activity android:name=".normalsec.NormalSecActvity"
             android:exported="true">
 
+        </activity>
+        <activity android:name=".testsec.EncodeAndMuxTest"
+            android:exported="true">
+
+        </activity>
+
+        <activity android:name=".normal.NomalActivity"
+            android:exported="true"></activity>
+        <activity android:name=".dvr.DVRActivity"
+            android:exported="true">
 
 
 <!--            <intent-filter>-->

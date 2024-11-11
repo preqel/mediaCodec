@@ -5,6 +5,7 @@ import android.opengl.EGLContext;
 import android.opengl.GLES30;
 import android.util.Log;
 
+import com.example.testmediacodec.GLFragment;
 import com.example.testmediacodec.util.GlesUtil;
 import com.example.testmediacodec.util.LogUtil;
 
@@ -59,13 +60,13 @@ public class RenderDrawerGroups {
     public void surfaceChangedSize(int width, int height) {
         mFrameBuffer = GlesUtil.createFrameBuffer();
         mOriginalDrawer.surfaceChangedSize(width, height);
-        mWaterMarkDrawer.surfaceChangedSize(width, height);
+//        mWaterMarkDrawer.surfaceChangedSize(width, height);
         mDisplayDrawer.surfaceChangedSize(width, height);
         mRecordDrawer.surfaceChangedSize(width, height);
 
         this.mOriginalDrawer.setInputTextureId(mInputTexture);
         int textureId = this.mOriginalDrawer.getOutputTextureId();
-        mWaterMarkDrawer.setInputTextureId(textureId);
+//        mWaterMarkDrawer.setInputTextureId(textureId);
         mDisplayDrawer.setInputTextureId(textureId);
         mRecordDrawer.setInputTextureId(textureId);
     }
@@ -88,7 +89,11 @@ public class RenderDrawerGroups {
         drawRender(mOriginalDrawer, true, timestamp, transformMatrix);
         // 绘制顺序会控制着 水印绘制哪一层
         //drawRender(mWaterMarkDrawer, true, timestamp, transformMatrix);
-      //  drawRender(mDisplayDrawer, false,  timestamp, transformMatrix);
+        if(GLFragment.Companion.getI() %2 ==0){
+            drawRender(mDisplayDrawer, false,  timestamp, transformMatrix);
+        } else{
+
+        }
         //本来是后面的watermarker是开的
        //drawRender(mWaterMarkDrawer, true, timestamp, transformMatrix);
         drawRender(mRecordDrawer, false, timestamp, transformMatrix);
