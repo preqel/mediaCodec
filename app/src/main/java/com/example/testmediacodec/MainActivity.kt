@@ -5,9 +5,6 @@ import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.ImageFormat
-import android.graphics.SurfaceTexture
-import android.hardware.Camera
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -37,6 +34,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.util.Consumer
 import com.example.testmediacodec.dvr.DVRActivity
 import com.example.testmediacodec.normalsec.NormalSecActvity
+import com.example.testmediacodec.test.CameraToMpegTest
 import com.example.testmediacodec.testsec.EncodeAndMuxTest
 import com.example.testmediacodec.ui.theme.TestMediaCodecTheme
 import java.io.File
@@ -86,6 +84,8 @@ class MainActivity : ComponentActivity() {
         val mStart = findViewById<TextView>(R.id.textView);
         val mStop = findViewById<TextView>(R.id.textView2);
         val mSwitch = findViewById<TextView>(R.id.textViewSwitch)
+        val cameraToMpeg = findViewById<TextView>(R.id.cameraToMpeg)
+
 
         val dvr = findViewById<TextView>(R.id.dvr)
         val testpreview = findViewById<TextView>(R.id.testpreview)
@@ -95,6 +95,11 @@ class MainActivity : ComponentActivity() {
         }
         testpreview.setOnClickListener {
             val intent = Intent(this, EncodeAndMuxTest::class.java)
+            startActivity(intent)
+        }
+
+        cameraToMpeg.setOnClickListener {
+            val intent = Intent(this, CameraToMpegTest::class.java)
             startActivity(intent)
         }
 

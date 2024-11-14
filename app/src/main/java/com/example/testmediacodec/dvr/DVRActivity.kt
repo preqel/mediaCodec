@@ -2,10 +2,12 @@ package com.example.testmediacodec.dvr
 
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
+import android.graphics.ImageFormat
 import android.graphics.SurfaceTexture
 import android.hardware.Camera
 import android.media.MediaPlayer
 import android.opengl.EGLContext
+import android.opengl.GLES11Ext
 import android.opengl.GLSurfaceView
 import android.os.Bundle
 import android.util.Log
@@ -15,6 +17,8 @@ import android.widget.Button
 import android.widget.ImageView
 import androidx.activity.ComponentActivity
 import com.example.testmediacodec.R
+import com.example.testmediacodec.render.J1Render
+import com.example.testmediacodec.render.J2Render
 import com.example.testmediacodec.util.StorageUtil
 
 //https://blog.51cto.com/u_16213352/7046194
@@ -25,7 +29,7 @@ class DVRActivity : ComponentActivity(), Model.Callback{
 
     private var mEGlSurface: MyEGLSurface? = null
 
-   lateinit var     mTextureView:TextureView
+//   lateinit var     mTextureView:TextureView
 
     var surfacetesxtid = 1
 
@@ -48,7 +52,7 @@ class DVRActivity : ComponentActivity(), Model.Callback{
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_dvr)
         mImageView = findViewById(R.id.iv_show)
-        mTextureView = findViewById(R.id.iv_right_bottom)
+       // mTextureView = findViewById(R.id.iv_right_bottom)
         surfacetesxtid = GLDrawer2D.initTex()
         Log.d("TAG24","initText >>>>>"+ surfacetesxtid)
         glSurfaceView = findViewById(R.id.GLsurfaceView)
@@ -67,9 +71,14 @@ class DVRActivity : ComponentActivity(), Model.Callback{
            RecordSurfaceRenderHandler.idfff = 1
         }
 
-        surfaceTexture = SurfaceTexture(surfacetesxtid)
-//      val render = TestRender(surfaceTexture, glSurfaceView)
-//        glSurfaceView?.setRenderer(render)
+        surfaceTexture = SurfaceTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES)
+
+        val render = J2Render(glSurfaceView)
+        //val render = J1Render(glSurfaceView)
+        glSurfaceView?.setRenderer(render)
+
+   //   val render = TestRender(surfaceTexture, glSurfaceView)
+    //    glSurfaceView?.setRenderer(render)
       //  val render = OGRender(this@DVRActivity,surfaceTexture, glSurfaceView)
         if(isTestFromLocalVideo){
             val surface = Surface(surfaceTexture)
@@ -147,14 +156,15 @@ class DVRActivity : ComponentActivity(), Model.Callback{
         param?.setPreviewSize(176, 144)
         mCamera?.setParameters(param)
         try {
-
+            val  buffersize =  ByteArray(400 * 400 * 3 / 2)
+            mCamera?.addCallbackBuffer(buffersize)
             //如果不要图形
             mCamera?.setPreviewTexture(surfaceTexture)
        //     mCamera.setPreviewDisplay(glSurfaceView?.holder)
-//            mCamera?.setPreviewDisplay()
+        //            mCamera?.setPreviewDisplay()
             //如果要显示camera
-//            surfaceView.visibility = View.VISIBLE
-//            mCamera?.setPreviewDisplay(surfaceView.holder)
+        //            surfaceView.visibility = View.VISIBLE
+        //            mCamera?.setPreviewDisplay(surfaceView.holder)
             mCamera?.setPreviewCallback(object: Camera.PreviewCallback {
                 override fun onPreviewFrame(data: ByteArray?, camera: Camera?) {
                     Log.d("TAG23","接受到数据了" )
@@ -167,6 +177,7 @@ class DVRActivity : ComponentActivity(), Model.Callback{
             })
             surfaceTexture?.setOnFrameAvailableListener {
                     surfaceTexture->
+                Log.d("TAG24", "setOnFrameAvailableListener"+ surfaceTexture.getTransformMatrix(mTransformMatrix))
                 if(mTransformMatrix== null){
                     mTransformMatrix = FloatArray(16)
                 }
@@ -188,14 +199,16 @@ class DVRActivity : ComponentActivity(), Model.Callback{
                         )
                     )
 
-                     mTextureView.setSurfaceTexture(surfaceTexture)
+                    // mTextureView.setSurfaceTexture(surfaceTexture)
                  }
 
                 }
                 //貌似不是这样写的
                 //   surfaceTexture.updateTexImage()
             }
+
             mCamera?.startPreview()
+
             //camera.takePicture(shutter, raw, jpeg)
         } catch (e: Exception) {
             Log.e("TAG23", "init_camera: $e")

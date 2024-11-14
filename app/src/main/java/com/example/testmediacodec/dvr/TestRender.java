@@ -60,7 +60,7 @@ public class TestRender implements GLSurfaceView.Renderer {
     public void onDrawFrame(GL10 gl) {
         // 更新SurfaceTexture的图像内容
         Log.d("TAG23", "onDrawFrame");
-        surfaceTexture.updateTexImage();
+       // surfaceTexture.updateTexImage();
         GLES20.glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
 
 

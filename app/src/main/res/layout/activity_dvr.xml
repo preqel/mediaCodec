@@ -50,6 +50,7 @@
         android:id="@+id/iv_right_bottom"
         android:layout_gravity="bottom|right"
         android:layout_width="200dp"
+        android:visibility="gone"
         android:layout_height="200dp"></TextureView>
 
 

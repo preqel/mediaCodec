@@ -17,6 +17,8 @@ import android.view.Surface;
 import android.view.SurfaceHolder;
 
 import com.example.testmediacodec.VideoEncoder;
+import com.example.testmediacodec.render.RecordRenderDrawer;
+import com.example.testmediacodec.test.CameraToMpegTest;
 import com.example.testmediacodec.util.StorageUtil;
 
 import java.io.File;
@@ -151,6 +153,8 @@ public class RecordSurfaceRenderHandler extends Handler {
      //   private EGLBase.EglSurface mTargetSurface;
         private Surface mSurface;
         private GLDrawer2D mDrawer ;
+        private CameraToMpegTest.STextureRender sTextureRender;
+
 
         public RenderThread(final String name) {
             super(name);
@@ -197,6 +201,7 @@ public class RecordSurfaceRenderHandler extends Handler {
                 mEgl.makeCurrent();
                 mTargetSurface = mEgl.mEGLSurface;
                 mDrawer = new GLDrawer2D();
+
                 mDrawer.initTex();
             }
           //  mTargetSurface = mEgl.createFromSurface(surface);
@@ -237,7 +242,7 @@ public class RecordSurfaceRenderHandler extends Handler {
         private static final int TEST_B1 = 186;
         int mWidth = 400;
         int mHeight = 400;
-        private void generateSurfaceFrame(int frameIndex) {
+        private void generateSurfaceFrame(int frameIndex,float[] tex_matrix ) {
             frameIndex %= 8;
 
             int startX, startY;
@@ -258,6 +263,17 @@ public class RecordSurfaceRenderHandler extends Handler {
             GLES20.glClearColor(TEST_R1 / 255.0f, TEST_G1 / 255.0f, TEST_B1 / 255.0f, 1.0f);
             GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
             GLES20.glDisable(GLES20.GL_SCISSOR_TEST);
+
+
+//
+//            if (tex_matrix != null)
+//                GLES20.glUniformMatrix4fv(muTexMatrixLoc, 1, false, tex_matrix, 0);
+//            GLES20.glUniformMatrix4fv(muMVPMatrixLoc, 1, false, mMvpMatrix, 0);
+//            GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+//            GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, tex_id);
+//            GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, VERTEX_NUM);
+//            GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, 0);
+
         }
 
         /**
@@ -312,8 +328,10 @@ public class RecordSurfaceRenderHandler extends Handler {
                 Log.v(TAG,"handleFrameAvailable mDrawer null");
                 return;
             }
+
+           // sTextureRender.drawFrame(mTargetSurface);
           mDrawer.draw(tex_id, transform);
-        //  generateSurfaceFrame(0);
+       //     generateSurfaceFrame(0,transform);
 
             //testDraw();
            // mTargetSurface.setPresentationTime(timestampNanos);

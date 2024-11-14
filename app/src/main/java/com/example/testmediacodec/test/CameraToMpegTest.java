@@ -218,14 +218,15 @@ public class CameraToMpegTest extends Activity {
         Camera.CameraInfo info = new Camera.CameraInfo();
 
         // Try to find a front-facing camera (e.g. for videoconferencing).
-        int numCameras = Camera.getNumberOfCameras();
-        for (int i = 0; i < numCameras; i++) {
-            Camera.getCameraInfo(i, info);
-            if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-                mCamera = Camera.open(i);
-                break;
-            }
-        }
+//        int numCameras = Camera.getNumberOfCameras();
+//        for (int i = 0; i < numCameras; i++) {
+//            Camera.getCameraInfo(i, info);
+//            if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+//              //  mCamera = Camera.open(i);
+//                mCamera = Camera.open();
+//                break;
+//            }
+//        }
         if (mCamera == null) {
             Log.d(TAG, "No front-facing camera found; opening default");
             mCamera = Camera.open();    // opens first back-facing camera
@@ -726,7 +727,7 @@ public class CameraToMpegTest extends Activity {
     /**
      * Code for rendering a texture onto a surface using OpenGL ES 2.0.
      */
-    private static class STextureRender {
+    public static class STextureRender {
         private static final int FLOAT_SIZE_BYTES = 4;
         private static final int TRIANGLE_VERTICES_DATA_STRIDE_BYTES = 5 * FLOAT_SIZE_BYTES;
         private static final int TRIANGLE_VERTICES_DATA_POS_OFFSET = 0;
