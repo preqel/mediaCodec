@@ -37,7 +37,7 @@ class DVRActivity : ComponentActivity(), Model.Callback{
 
     private var mCamera :Camera?= null
 
-    private var glSurfaceView:GLSurfaceView?= null
+    private var glSurfaceView:FilterSurfaceView?= null
 
     private var surfaceTexture:SurfaceTexture?= null
 
@@ -45,7 +45,10 @@ class DVRActivity : ComponentActivity(), Model.Callback{
 
     private var shareContext:EGLContext?= null   //共享的上下文
 
-    var isInitfinish= false;
+    companion object{
+        var isInitfinish= false;
+    }
+
 
     @SuppressLint("SuspiciousIndentation")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,10 +64,16 @@ class DVRActivity : ComponentActivity(), Model.Callback{
             start_camera()
         }
         findViewById<Button>(R.id.btnstop).setOnClickListener {
-            if(shareContext!= null){
-                isInitfinish = true
-                recordSurfaceRenderHandler.setEglContext(shareContext , surfacetesxtid, surfaceTexture,true )
-            }
+//            if(shareContext!= null){
+//                isInitfinish = true
+//                recordSurfaceRenderHandler.setEglContext(shareContext , surfacetesxtid, surfaceTexture,true )
+//            }
+
+          if(TempT.share_context!= null){
+              isInitfinish = true
+              Log.d("TAG26","setEglcontext execute")
+              recordSurfaceRenderHandler.setEglContext(TempT.share_context, 1, glSurfaceView?.getJ2Render()?.surfaceTexture, true)
+          }
         }
 
         findViewById<Button>(R.id.stopRecord).setOnClickListener {
@@ -73,9 +82,10 @@ class DVRActivity : ComponentActivity(), Model.Callback{
 
         surfaceTexture = SurfaceTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES)
 
-        val render = J2Render(glSurfaceView)
+
+//        val render = J2Render(glSurfaceView)
         //val render = J1Render(glSurfaceView)
-        glSurfaceView?.setRenderer(render)
+//        glSurfaceView?.setRenderer(render)
 
    //   val render = TestRender(surfaceTexture, glSurfaceView)
     //    glSurfaceView?.setRenderer(render)
